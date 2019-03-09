@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org/DTD Mapper 3.0// EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace = "com.dreamsecurity.mapper.user">
+	<insert id="insertUser" parameterType="userVo">
+		insert into user_info (
+			id,
+			name,
+			add_date,
+			depart_team,
+			job_level,
+			e_mail,
+			password,
+			state
+		) values ( 
+			#{id},
+			#{name},
+			#{addDate},
+			#{departTeam},
+			#{jobLevel},
+			#{eMail},
+			#{password},
+			#{state}
+		)
+	</insert>
+	
+	<insert id="insertAppliedUser" parameterType="appliedUserInfoVo">
+		insert into applied_user_info ( 
+			user_id,
+			password,
+			add_date,
+			name,
+			depart_team,
+			job_level,
+			e_mail,
+			group_creator,
+			group_id,
+			group_name,
+			solution_name,
+			group_description,
+			state
+		) values (
+			#{userId},
+			#{password},
+			#{addDate},
+			#{name},
+			#{departTeam},
+			#{jobLevel},
+			#{eMail},
+			#{groupCreator},
+			#{groupId},
+			#{groupName},
+			#{solutionName},
+			#{groupDescription},
+			#{state}
+		)
+	</insert>
+	
+	<select id="selectAppliedUserList" parameterType="map" resultType="map">
+		select 
+			seq_id seqId,
+			user_id userId,
+			add_date addDate,
+			name,
+			depart_team departTeam,
+			job_level jobLevel,
+			e_mail eMail,
+			group_creator groupCreator,
+			group_id groupId,
+			solution_name solutionName,
+			group_description groupDescription
+		from
+			applied_user_info
+		where
+			state = 0
+		limit ${cri.perPageNum} offset ${cri.pageStart}
+	</select>
+	
+	<select id="selectAppliedUserListCnt" resultType="int">
+		select
+			count(*)
+		from
+			applied_user_info
+		where
+			state = 0	
+	</select>
+	
+	<select id="selectAppliedUserInfoOne" parameterType="int" resultType="appliedUserInfoVo">
+		select 
+			seq_id seqId,
+			user_id userId,
+			password,
+			add_date addDate,
+			name,
+			depart_team departTeam,
+			job_level jobLevel,
+			e_mail eMail,
+			group_creator groupCreator,
+			group_id groupId,
+			group_name groupName,
+			solution_name solutionName,
+			group_description groupDescription
+		from
+			applied_user_info
+		where
+			seq_id = #{value}
+	</select>
+	
+	<update id="updateAppliedUserState" parameterType="appliedUserInfoVo">
+		update
+			applied_user_info
+		set
+			state = #{state}
+		where
+			seq_id = #{seqId}
+	</update>
+	
+	<select id="selectOneUser" parameterType="userVo" resultType="userVo">
+		select
+			id,
+			name,
+			depart_team,
+			job_level,
+			password,
+			state
+		from
+			user_info
+		where
+			id=#{loginId}
+	</select>
+	
+	<select id="selectUserList" resultType="map">
+		select
+			id,
+			name,
+			add_date addDate,
+			depart_team departTeam,
+			job_level jobLevel,
+			state
+		from
+			user_info
+	</select>
+	
+	<select id="selectUserOne4ChkOverlap" parameterType="userVo" resultType="userVo">
+		select
+			id
+		from
+			user_info
+		where
+			id = #{id}
+	</select>
+	
+	<select id="selectAppliedUserOne4ChkOverlap" parameterType="userVo" resultType="userVo">
+		select
+			user_id id
+		from
+			applied_user_info
+		where
+			user_id = #{id}
+	</select>
+	
+</mapper>

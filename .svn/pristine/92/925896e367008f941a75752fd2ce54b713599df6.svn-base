@@ -1,0 +1,27 @@
+package com.dreamsecurity.ca.business.group.vo;
+
+public class GroupSolutionVo {
+	
+	private int seqId;
+	private int groupId;
+	private String solutionName;
+	
+	public int getSeqId() {
+		return seqId;
+	}
+	public void setSeqId(int seqId) {
+		this.seqId = seqId;
+	}
+	public int getGroupId() {
+		return groupId;
+	}
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
+	}
+	public String getSolutionName() {
+		return solutionName;
+	}
+	public void setSolutionName(String solutionName) {
+		this.solutionName = solutionName;
+	}	
+}

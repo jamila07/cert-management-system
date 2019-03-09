@@ -1,0 +1,56 @@
+package com.dreamsecurity.ca.ext.vo;
+
+import java.util.Date;
+
+public class KmsGroupInfo {
+	private int id;
+	private String name;
+	private String altName;
+	private Date createDate;
+	private String creator;
+	private int state;
+	private String description;
+	
+	public int getId() {
+		return id;
+	}
+	public void setId(int id) {
+		this.id = id;
+	}
+	public String getName() {
+		return name;
+	}
+	public void setName(String name) {
+		this.name = name;
+	}
+	public String getAltName() {
+		return altName;
+	}
+	public void setAltName(String altName) {
+		this.altName = altName;
+	}
+	public Date getCreateDate() {
+		return createDate;
+	}
+	public void setCreateDate(Date createDate) {
+		this.createDate = createDate;
+	}
+	public String getCreator() {
+		return creator;
+	}
+	public void setCreator(String creator) {
+		this.creator = creator;
+	}
+	public int getState() {
+		return state;
+	}
+	public void setState(int state) {
+		this.state = state;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+}

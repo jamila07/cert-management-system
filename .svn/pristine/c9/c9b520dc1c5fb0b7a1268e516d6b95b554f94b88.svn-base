@@ -1,0 +1,21 @@
+package com.dreamsecurity.ca.ext.dao;
+
+import javax.inject.Inject;
+
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.stereotype.Repository;
+
+import com.dreamsecurity.ca.ext.vo.KeyOwnerVo;
+
+@Repository
+public class MagicKmsAgentDao {
+	
+	@Inject
+	private SqlSession session;
+	
+	private static String namespace="com.dreamsecurity.mapper.kmsagent";
+	
+	public KeyOwnerVo selectKeyOwnerUsingUserUid( KeyOwnerVo vo ) {
+		return session.selectOne( namespace + ".selectKeyOwnerUsingUserUid", vo );
+	}
+}

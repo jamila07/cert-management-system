@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org/DTD Mapper 3.0// EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace = "com.dreamsecurity.mapper.audit">
+	
+	<select id="selectCertAduitList" parameterType="map" resultType="map" >
+		select
+			id,
+			user_id userId,
+			date,
+			request_param requestParam,
+			client_ip clientIp
+		from
+			cert_audit
+		limit ${cri.perPageNum} offset ${cri.pageStart}
+	</select>
+	
+	<select id="selectCertAuditListCnt" resultType="int">
+		select
+			count(*)
+		from
+			cert_audit
+	</select>
+	
+	<select id="selectWebAduitList" parameterType="map" resultType="map" >
+		select
+			id,
+			user_id userId,
+			date,
+			url,
+			param,
+			client_ip clientIp
+		from
+			web_audit
+		limit ${cri.perPageNum} offset ${cri.pageStart}
+	</select>
+	
+	<select id="selectWebAuditListCnt" resultType="int">
+		select
+			count(*)
+		from
+			web_audit
+	</select>
+	
+	<insert id="insertCertAudit" parameterType="certAuditVo">
+		insert into cert_audit (
+			user_id,
+			request_param,
+			date,
+			action,
+			client_ip,
+			server_ip,
+			result,
+			err_msg,
+			hash
+		) values ( 
+			#{userId},
+			#{requestParam},
+			#{date},
+			#{action},
+			#{clientIp},
+			#{serverIp},
+			#{result},
+			#{errMsg},
+			#{hash}
+		);
+	</insert>
+	
+	<insert id="insertWebAudit" parameterType="webAuditVo">
+		insert into web_audit (
+			user_id,
+			date,
+			url,
+			param,
+			rep_code,
+			err_msg,
+			client_ip,
+			server_ip,
+			hash
+		) values ( 
+			#{userId},
+			#{date},
+			#{url},
+			#{param},
+			#{repCode},
+			#{errMsg},
+			#{clientIp},
+			#{serverIp},
+			#{hash}
+		);
+	</insert>
+</mapper>

@@ -1,0 +1,56 @@
+package com.dreamsecurity.ca.ext;
+
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.inject.Inject;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.dreamsecurity.ca.ext.service.MagicKmsAgentService;
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+
+@RestController
+@RequestMapping("/ext")
+public class MagicKmsAgentController {
+	
+	@Inject 
+	private MagicKmsAgentService service;
+	
+	@RequestMapping(value = "/kms/user/{userUid}", method = RequestMethod.POST)
+	public ResponseEntity<?> showUserAuthVal( @PathVariable("userUid") String userUid, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NullPointerException {
+		ResponseEntity<?> entity = null;
+		Map<String, Object> entities = new HashMap<String, Object>();
+		
+		entities.put( "authVal", service.showUserAuthVal( request, userUid ) );
+		entities.put( "status", "success" );
+		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		 
+		return entity;
+	}
+	
+	@RequestMapping(value = "/kms/key/{uuid}", method = RequestMethod.POST)
+	public ResponseEntity<?> isUserAuthorized( @PathVariable("uuid") String keyUid, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NullPointerException {
+		ResponseEntity<?> entity = null;
+		Map<String, Object> entities = new HashMap<String, Object>();
+		
+		if ( service.isUserAuthorized( request, keyUid ) == true ) {
+			entities.put( "status", "success" );
+		} else {
+			entities.put( "status", "fail" );
+		}
+		
+		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		 
+		return entity;
+	}
+}

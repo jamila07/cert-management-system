@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org/DTD Mapper 3.0// EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace = "com.dreamsecurity.mapper.key">
+	
+	<insert id="insertKeyInfo" parameterType="keyVo">
+		insert into keypair ( 
+			key_identifier,
+			public_key,
+			private_key
+		) values ( 
+			#{publicKeyIdentifier},
+			#{publicKey},
+			#{privateKey}
+		);
+		 <!--  이거 수정해야함 ㅡㅡ;; genkey로 -->
+		<selectKey resultType="int" keyProperty="id" order="AFTER">
+			select id from keypair 
+			order by id desc 
+			limit 1;
+		</selectKey>
+	</insert>
+	
+	<select id="selectKeyBinary" parameterType="certVo" resultType="keyVo">
+		select
+			k.id,
+			k.private_key privateKey
+		from cert c
+		inner join keypair k on k.id = c.key_id
+		where
+			c.id = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,33 @@
+package com.dreamsecurity.ca.ext.vo;
+
+public class KmsApiDto {
+	private String userUid;
+	private String keyUid;
+	private String nonce;
+	private int authorizationLevel;
+	
+	public int getAuthorizationLevel() {
+		return authorizationLevel;
+	}
+	public void setAuthorizationLevel(int authorizationLevel) {
+		this.authorizationLevel = authorizationLevel;
+	}
+	public String getUserUid() {
+		return userUid;
+	}
+	public void setUserUid(String userUid) {
+		this.userUid = userUid;
+	}
+	public String getNonce() {
+		return nonce;
+	}
+	public void setNonce(String nonce) {
+		this.nonce = nonce;
+	}
+	public String getKeyUid() {
+		return keyUid;
+	}
+	public void setKeyUid(String keyUid) {
+		this.keyUid = keyUid;
+	}
+}

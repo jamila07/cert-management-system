@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org/DTD Mapper 3.0// EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+  
+<mapper namespace = "com.dreamsecurity.mapper.group">
+	<insert id="registerGroup" parameterType="groupVo" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+		insert into group_info (
+			name,
+			alt_name,
+			create_date,
+			creator,
+			state,
+			description
+		) values ( 
+			#{name},
+			#{altName},
+			#{createDate},
+			#{creator},
+			#{state},
+			#{description}
+		);
+	</insert>
+	
+	<insert id="addUserToGroup" parameterType="userGroupVo">
+		insert into user_group(
+			user_id,
+			group_id,
+			join_date,
+			user_authority,
+			state
+		) values ( 
+			#{userId},
+			#{groupId},
+			#{joinDate},
+			#{userAuthority},
+			#{state}
+		)
+	</insert>
+	
+	<select id="selectGroupList" parameterType="map" resultType="map">
+		select
+			id,
+			name,
+			alt_name altName,
+			create_date createDate,
+			creator,
+			state,
+			description
+		from
+			group_info
+		limit ${cri.perPageNum} offset ${cri.pageStart}
+	</select>
+	
+	<select id="selectGrouplistCnt" resultType="int">
+		select
+			count(*)
+		from
+			group_info
+	</select>
+	
+	<select id="selectUserGroupList" parameterType="userGroupVo" resultType="userGroupVo">
+		select
+			user_id userId,
+			group_id groupId,
+			join_date joinDate,
+			user_authority userAuthority,
+			state
+		from
+			user_group
+		where
+			group_id=#{groupId}		
+	</select>
+	
+	<insert id="insertUserToGroup" parameterType="userGroupVo">
+		insert into	user_group(
+			user_id,
+			group_id,
+			join_date,
+			user_authority,
+			state
+		) values (
+			#{userId},
+			#{groupId},
+			#{joinDate},
+			#{userAuthority},
+			#{state}
+		);
+	</insert>
+	
+	<delete id="deleteUserToGroup" parameterType="userGroupVo">
+		delete from user_group
+		where
+			user_id=#{userId} and
+			group_id=#{groupId}
+	</delete>
+	
+	<insert id="insertGroupSolution" parameterType="groupSolutionVo">
+		insert into group_info_solution (
+			group_id,
+			solution_name
+		) values (
+			#{groupId},
+			#{solutionName}
+		)
+	</insert>
+</mapper>

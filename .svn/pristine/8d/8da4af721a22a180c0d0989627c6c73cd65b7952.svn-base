@@ -1,0 +1,163 @@
+<%@ page language="java" contentType="text/html; charset=UTF-8"
+    pageEncoding="UTF-8"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
+<%@ include file="/WEB-INF/views/cert/plugin.jsp"%>
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<a href="/group/home.do"> 그룹 </a>
+	<a href="/audit/home.do"> 감사로그 </a>
+	<a href="/user/home.do"> 사용자</a>
+	<a href="javascript:;" onclick="logout()">
+			<span>로그아웃</span>
+	</a> 
+	
+	<form name="certForm" id="certForm" action="/cert/register.do" method="post">
+		유효기간 : <input type="text" name="validity"/> <br>
+		현장 이름 : <input type="text" name="citeName" /> <br>
+		인증서 종류 : 
+		<select name="type">
+			<c:if test="${ sessionScope.sessionAuth eq '0' }">
+			<option value="0">Root인증서</option>
+			<option value="1">중간 CA 인증서</option>
+			</c:if>
+			<c:if test="${ sessionScope.sessionAuth eq '1' }">
+			<option value="2">EE 인증서</option>
+			</c:if>	
+		</select> <br>
+		<select name="ouType">
+			<option value="MagicKMS">MagicKMS</option>
+			<option value="MagicDB">MagicDB</option>
+		</select> <br>
+		설명 : <input type="text" name="description" /> <br>
+		<a href="javascript:;" onclick="submitData('certForm')">
+			<span>고고</span>
+		</a>
+		
+	</form>
+	<h2>인증서 검증</h2>
+		<div class="fileDrop"></div>
+		<div class="uploadedList"></div>
+		
+	<h2>인증서 목록</h2>
+	<table id="certTable" border=1>
+		<tr>
+			<th>번호</th>
+			<th>DN</th>
+			<th>유효기간 시작</th>
+			<th>유효기간 끝</th>
+			<th>발급자</th>
+			<th>신청자</th>
+			<th>ouType</th>
+			<th>다운로드</th>
+		</tr>
+	</table>
+</body>
+
+<style>
+	.fileDrop {
+		width: 50%;
+		height:200px;
+		border:1px dotted blue;
+	}
+	
+	small {
+		margin-left:3px;
+		font-weight: bold;
+		color: gray;
+	}
+</style>
+<script>
+$(function(){
+	$(".fileDrop").on("dragenter dragover", function(evenet){
+		event.preventDefault();
+	});
+	
+	$(".fileDrop").on("drop", function(evenet){
+		event.preventDefault();
+		
+		var files = event.dataTransfer.files;
+		
+		var file = files[0];
+		
+		var b64File;
+		getBase64(file).then(function(data){
+			if ( data.indexOf( 'data:application/x-x509-ca-cert;base64,' ) == 0 ) {
+				data = data.substring( 39 );
+				
+				var sendData = {
+					"data":data	
+				};
+				$.ajax({
+					url:'/cert/upload', 
+					data:JSON.stringify( sendData ),
+					type:'POST',
+					dataType:'json', 
+					success: function(data) {
+						alert(data.status);
+					},
+					error: function(data) {
+						alert("실패 : " + data.responseJSON.errMsg );
+					}
+				});
+			} else {
+				alert("인증서 아닌거 올리지마셈");
+			}	
+		});
+	});
+	
+	$.ajax({ 
+		url: '/cert/showList.do',
+		type: 'POST',
+		dataType: 'json', 
+		success: function(list) {  
+			
+			$.each(list.data, function(i){
+				$("#certTable").append("<tr class='trC' value='" + list.data[i].id + "'>" +
+						"<td>" + list.data[i].id + "</td>" +
+						"<td>" + list.data[i].subjectdn + "</td>" +
+						"<td>" + list.data[i].startdate + "</td>" +
+						"<td>" + list.data[i].enddate + "</td>" +
+						"<td>" + list.data[i].issuer + "</td>" +
+						"<td>" + list.data[i].subject + "</td>" +
+						"<td>" + list.data[i].outype + "</td>" +
+// 						"<td><a href=/cert/download/'" + list.data[i].id + "' >다운로드</a></td>" + 
+						"<td><a href=javascript:; onclick=certDownload('" + list.data[i].id + "')>다운로드</a></td>" +
+					"</tr>");
+			});
+		}
+	});
+});
+
+function certDownload( id ) {
+   
+	$.ajax({ 
+		url: '/cert/download/' + id,
+		type: 'POST',   
+		success: function (data) {
+			console.log(data);
+			b64ToFileSave("cert.cer", data.fileB64);
+	    }    
+	});    
+ 
+}
+
+function logout() { 
+	$.ajax({
+		url : '/logout.do',
+		success:function(data) {
+			alert("로그아웃");
+			window.location.href = data.redirect;
+		}, 
+		error: function (xhr, ajaxOptions, thrownError) {
+			alert(xhr.status);
+		}
+	}); 
+}
+</script>
+
+</html>
