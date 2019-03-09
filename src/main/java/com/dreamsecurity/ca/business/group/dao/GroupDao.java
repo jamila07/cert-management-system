@@ -91,6 +91,11 @@ public class GroupDao {
 		return session.update( namespace + ".updateGroupStateUsingGroupId", vo );
 	}
 	
+	public int updateGroupSolutionStateUsingSolutionId( GroupSolutionVo vo ) {
+		return session.update( namespace + ".updateGroupSolutionStateUsingSolutionId", vo );
+	}
+	
+	// ONLY USE GROUP ADD AND GROUP SOLUTION
 	public int updateGroupSolutionStateUsingGroupId( GroupSolutionVo vo ) {
 		return session.update( namespace + ".updateGroupSolutionStateUsingGroupId", vo );
 	}

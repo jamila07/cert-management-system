@@ -60,6 +60,8 @@ public class GroupService {
 		groupSolutionVo.setGroupId( groupVo.getId() );
 		groupSolutionVo.setSolutionName( groupVo.getGroupSolutionName() );
 		groupSolutionVo.setState( 4 );
+		groupSolutionVo.setCreateDate( currnetDate );
+		groupSolutionVo.setCreator( LoginConstants.SESSION_ID );
 		
 		dao.insertGroupSolution( groupSolutionVo );
 		

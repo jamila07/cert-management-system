@@ -159,7 +159,7 @@
 		    gi.creator,
 		    gi.state,
 		    gis.seq_id seqId,
-		    gis.group_id GroupId,
+		    gis.group_id groupId,
 		    gis.solution_name solutionName,
 		    gis.create_date createDate,
 		    gis.creator,
@@ -208,13 +208,22 @@
 			id = #{id}
 	</update>
 	
+	<update id="updateGroupSolutionStateUsingSolutionId" parameterType="groupSolutionVo">
+		update
+			group_info_solution
+		set
+			state = #{state}
+		where
+			seq_id = #{seqId}
+	</update>
+	
 	<update id="updateGroupSolutionStateUsingGroupId" parameterType="groupSolutionVo">
 		update
 			group_info_solution
 		set
 			state = #{state}
 		where
-			group_id = #{groupId}
+			group_id = #{groupId} and state = 4
 	</update>
 	
 	<select id="selectGroupMaster" parameterType="UserGroupVo" resultType="UserGroupVo">
@@ -267,11 +276,15 @@
 		insert into group_info_solution (
 			group_id,
 			solution_name,
-			state
+			state,
+			create_date,
+			creator
 		) values (
 			#{groupId},
 			#{solutionName},
-			#{state}
+			#{state},
+			#{createDate},
+			#{creator}
 		)
 	</insert>
 	
@@ -302,4 +315,12 @@
 		where
 			gi.id = #{id}
 	</select>
+	
+	<delete id="deleteGroupUsingGroupId" parameterType="groupVo" >
+	
+	</delete>
+	
+	<delete id="deleteGroupSolutionUsingSId" parameterType="groupSolutionVo" >
+	
+	</delete>
 </mapper>

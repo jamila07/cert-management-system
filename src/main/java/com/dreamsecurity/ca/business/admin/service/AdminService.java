@@ -203,19 +203,34 @@ public class AdminService {
 		groupDao.updateGroupSolutionStateUsingGroupId( gSolutionVo );
 		
 		groupVo = groupDao.selectUserSolutionJoinUsingGroupId( groupVo );
-		System.out.println( groupVo.getGroupSolutionVo().get(0).getSolutionName() );
-		//uservo - > userid
-		// departTeam
-		// soltuion name
-		// user, userGroup, groupInfoSolution join 해야함 
+
 		registerIntermediateCa( groupVo.getUserVo(), groupVo, groupVo.getUserVo().getDepartTeam(), groupVo.getGroupSolutionVo().get( 0 ).getSolutionName() );
 	}
 	
 	@Transactional(rollbackFor={Exception.class})
 	public void registerSolution( HttpServletRequest request, int seqId ) {
+		GroupSolutionVo gSolutionVo = new GroupSolutionVo();
 		
+		gSolutionVo.setSeqId( seqId );
+		gSolutionVo.setState( 0 );
+		
+		groupDao.updateGroupSolutionStateUsingSolutionId( gSolutionVo );
 	}
 
+	@Transactional(rollbackFor={Exception.class})
+	public void refuseAppliedUser( HttpServletRequest request, int seqId ) {
+		
+	}
+	
+	@Transactional(rollbackFor={Exception.class})
+	public void refuseAppliedGroup( HttpServletRequest request, int seqId ) {
+		
+	}
+	
+	public void refuseAppliedSolution( HttpServletRequest request, int seqId ) {
+		
+	}
+	
 	private UserVo addUser( AppliedUserInfoVo appliedUserVo ) {
 		UserVo userVo = new UserVo();
 		

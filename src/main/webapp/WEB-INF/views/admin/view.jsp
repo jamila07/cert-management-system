@@ -126,16 +126,16 @@ function goAppliedGroupSolutionList( page ) {
 			for ( i=0; i<navi; i++ ) {
 				if ( i < navi2 ) {
 					if ( $("#groupSolutionApplyTable tr").length <= (i + 1)) {
-						$("#groupSolutionApplyTable").append("<tr class='trC' value='" + list.data[i].id + "'>" +
-								"<td>" + list.data[i].id + "</td>" +
+						$("#groupSolutionApplyTable").append("<tr class='trC' value='" + list.data[i].seqid + "'>" +
+								"<td>" + list.data[i].seqid + "</td>" +
 								"<td>" + list.data[i].name + "</td>" +
 								"<td>" + list.data[i].createdate + "</td>" +
 								"<td>" + list.data[i].creator + "</td>" +
 								"<td>" + list.data[i].solutionname + "</td>" +
-								"<td><a href=javascript:; onclick=registerAppliedSolution('" + list.data[i].id + "')>승인</a></td>" + 
+								"<td><a href=javascript:; onclick=registerAppliedSolution('" + list.data[i].seqid + "')>승인</a></td>" + 
 							"</tr>");
 					} else {  
-						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].id );
+						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].seqid );
 						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].name );
 						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].createdate );
 						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].creator );
