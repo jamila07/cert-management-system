@@ -1,7 +1,10 @@
 package com.dreamsecurity.ca.business.user.vo;
 
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
+import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
@@ -29,6 +32,17 @@ public class AppliedUserInfoVo {
 	private String groupDescription;
 	@JsonInclude(Include.NON_NULL)
 	private int state;
+	
+	private Map<String, Object> dynamicParam = new HashMap<String, Object>();
+	
+	@JsonAnySetter
+	public void setDynamicParam( String key, Object value ) {
+		dynamicParam.put( key, value );
+	}
+	
+	public Map<String, Object> getDynamicParam() {
+		return dynamicParam;
+	}
 	
 	public String getGroupName() {
 		return groupName;

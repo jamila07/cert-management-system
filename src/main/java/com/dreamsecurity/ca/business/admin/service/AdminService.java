@@ -307,7 +307,7 @@ public class AdminService {
 		return vo;
 	}
 	
-	private void registerIntermediateCa( UserVo userVo, GroupVo groupVo, String departTeam, String solutionName ) throws IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, InvalidKeyException, NumberFormatException, NoSuchProviderException, SignatureException, IOException {
+	private synchronized void registerIntermediateCa( UserVo userVo, GroupVo groupVo, String departTeam, String solutionName ) throws IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, InvalidKeyException, NumberFormatException, NoSuchProviderException, SignatureException, IOException {
 		CertVo certVo = new CertVo();
 		KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance( CertConstants.KEY_ALGORITHM );
 		keyPairGenerator.initialize( 2048 );
@@ -323,11 +323,13 @@ public class AdminService {
 		if ( rootCaVo == null ) 
 			throw new IllegalAccessException( "RootCA is not found");
 		
+		certVo.setType( 1 );
 		certVo.setIssuer( rootCaVo.getSubject() );
+		
 		X509Certificate rootCert = CaUtils.bytesToX509Cert( rootCaVo.getFile() );
 		PrivateKey rootPriKey = CaUtils.pkcs8bytesToPrivateKeyObj( rootCaVo.getKeyVo().getPrivateKey() );
 		
-		BigInteger serialNumber = BigInteger.valueOf( 1 );
+		BigInteger serialNumber = BigInteger.valueOf( certDao.selectCertSerialNumber( certVo ) + 1 );
 		
 		X509Certificate intermediateCa = CertGeneratorFactory.building()
 				.subject( caKeyPair )
@@ -344,7 +346,6 @@ public class AdminService {
 		certVo.setSubject( userVo.getId() );
 		certVo.setIssuer( rootCaVo.getSubject() );
 		certVo.setOuType( groupVo.getId() );
-		certVo.setType( 1 );
 		certVo = setKeyAndCertVo( certVo, caKeyPair, serialNumber, intermediateCa );
 		
 		certDao.insertKeyInfo( certVo.getKeyVo() );

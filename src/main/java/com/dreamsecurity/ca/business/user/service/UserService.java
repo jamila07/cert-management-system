@@ -10,6 +10,7 @@ import java.util.Map;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.dreamsecurity.ca.business.common.CommonConstants;
@@ -27,16 +28,34 @@ public class UserService {
 	@Resource
 	private UserDao userDao;
 	
-	public void appliedUserRegister( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {
+	private ObjectMapper objectMapper;
+	
+	@Autowired
+	private UserService( ObjectMapper objectMapper ) {
+		this.objectMapper = objectMapper;
+	}
+	
+	public void registerAppliedUser( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {
 		ObjectMapper mapper = new ObjectMapper();
 		AppliedUserInfoVo vo = mapper.readValue( request.getReader(), AppliedUserInfoVo.class );
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
+		
+		
 		
 		vo.setAddDate( new Date() );
 		vo.setState( 0 );
 		vo.setPassword( CaUtils.convertByteArrayToHexString( messageDigest.digest( vo.getPassword().getBytes() ) ) );
 
 		userDao.insertAplliedUser( vo );
+	}
+	
+	public void rejectAppliedUser( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException {
+		AppliedUserInfoVo vo = objectMapper.readValue( request.getReader(), AppliedUserInfoVo.class );
+		
+		vo.setSeqId( vo.getSeqId() ); 
+		vo.setState( 0 );
+		
+		userDao.updateAppliedUserState( vo );
 	}
 	
 	public UserVo selectOneUser( UserVo vo ) {

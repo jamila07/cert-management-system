@@ -49,9 +49,16 @@ public class UserController {
 	
 	@PostMapping("/register.do")
 	public void register( HttpServletRequest request, HttpServletResponse response) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
-		service.appliedUserRegister( request );
+		service.registerAppliedUser( request );
 		wAuditService.insertAudit( request );
 	}
+	
+	@PostMapping("/reject.do")
+	public void rejectAppliedUser( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException {
+		service.rejectAppliedUser( request );
+		wAuditService.insertAudit( request );
+	}
+	
 	
 	@PostMapping(value="/showUserList.do")
 	public ResponseEntity<?> showUserList( HttpServletRequest request, HttpServletResponse response ) {

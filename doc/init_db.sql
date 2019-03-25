@@ -145,12 +145,15 @@ create table group_info_solution(
 );
 
 
+-- 고민
+--alter table cert add constraint FK13F4AF379D2ADF1 foreign key (subject) references user_info(id);
+--alter table cert add constraint FK13F4AF379D2ADF2 foreign key (issuer) references user_info(id);
+--alter table group_info add constraint FK13F4AF379D2ADF6 foreign key (creator) references user_info(id);
 
-alter table cert add constraint FK13F4AF379D2ADF1 foreign key (subject) references user_info(id);
-alter table cert add constraint FK13F4AF379D2ADF2 foreign key (issuer) references user_info(id);
+
 alter table cert add constraint FK13F4AF379D2ADF3 foreign key (key_id) references keypair(id);
 alter table cert add constraint FK13F4AF379D2ADF8 foreign key (ou_type) references group_info(id);
 alter table user_group add constraint FK13F4AF379D2ADF4 foreign key (user_id) references user_info(id);
 alter table user_group add constraint FK13F4AF379D2ADF5 foreign key (group_id) references group_info(id);
-alter table group_info add constraint FK13F4AF379D2ADF6 foreign key (creator) references user_info(id);
+
 alter table group_info_solution add constraint FK13F4AF379D2ADF7 foreign key (group_id) references group_info(id);

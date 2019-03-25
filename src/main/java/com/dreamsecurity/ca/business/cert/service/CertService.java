@@ -165,7 +165,7 @@ public class CertService {
 		this.registerEeCert( vo );
 	}
 		
-	private X509Certificate registerEeCert( CertVo certVo ) throws NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, IOException, IllegalAccessException {
+	private synchronized X509Certificate registerEeCert( CertVo certVo ) throws NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, InvalidKeyException, NoSuchProviderException, SignatureException, IOException, IllegalAccessException {
 		KeyPairGenerator keyPGen = KeyPairGenerator.getInstance( CertConstants.KEY_ALGORITHM );
 		keyPGen.initialize( 2048 );
 		KeyPair eeCertKeyPair = keyPGen.generateKeyPair();
