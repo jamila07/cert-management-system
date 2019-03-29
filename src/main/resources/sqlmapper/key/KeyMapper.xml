@@ -23,10 +23,21 @@
 		</selectKey>
 	</insert>
 	
-	<select id="selectKeyBinary" parameterType="certVo" resultType="keyVo">
+	<select id="selectKeyPairBinary" parameterType="certVo" resultType="keyVo">
 		select
 			k.id,
-			k.private_key privateKey
+			k.private_key privateKey,
+			k.public_key publicKey
+		from cert c
+		inner join keypair k on k.id = c.key_id
+		where
+			c.id = #{id}
+	</select>
+	
+	<select id="selectPublicKeyBinary" parameterType="certVo" resultType="keyVo">
+		select
+			k.id,
+			k.public_key publicKey
 		from cert c
 		inner join keypair k on k.id = c.key_id
 		where

@@ -3,15 +3,20 @@ package com.dreamsecurity.ca.business.cert.controller;
 import java.io.IOException;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.SignatureException;
 import java.security.cert.CertPathBuilderException;
 import java.security.cert.CertificateException;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -95,45 +100,12 @@ public class CertController {
 		return entity;
 	}
 	
-	@PostMapping("certBinDownload/{certId}")
-	public ResponseEntity<?>downloadCertBinFile( @PathVariable("certId") int id, HttpServletRequest request, HttpServletResponse response ) throws IOException {
+	@PostMapping("cert-download/{certId}")
+	public ResponseEntity<?> downloadCert( @PathVariable("certId") int certId, HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, KeyStoreException, IOException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
 		
-		entities.put( "fileB64", service.downloadCertBinaryFile( id, request ) );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
-		return entity;
-	}
-	
-	@PostMapping("certPemDownload/{certId}")
-	public ResponseEntity<?>downloadCertPemFile( @PathVariable("certId") int id, HttpServletRequest request, HttpServletResponse response ) throws IOException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
-		
-		entities.put( "fileB64", service.downloadCertPemFile( id, request ) );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
-		return entity;
-	}
-	
-	@PostMapping("pkcs8KeyDownload/{certId}")
-	public ResponseEntity<?>downloadPkcs8KeyFile( @PathVariable("certId") int id, HttpServletRequest request, HttpServletResponse response ) throws IOException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
-		
-		entities.put( "fileB64", service.downloadPkcs8KeyFile( id, request ) );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
-		return entity;
-	}
-	
-	@PostMapping("pkcs8PemDownload/{certId}")
-	public ResponseEntity<?>downloadPkcs8PemFile( @PathVariable("certId") int id, HttpServletRequest request, HttpServletResponse response ) throws IOException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
-		
-		entities.put( "fileB64", service.downloadPkcs8PemFile( id, request ) );
+		entities.put( "fileB64", service.downloadCert( request, certId ) );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
 		
 		return entity;

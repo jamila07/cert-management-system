@@ -7,6 +7,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.KeyPair;
 import java.security.KeyPairGenerator;
+import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.security.PrivateKey;
@@ -17,6 +18,7 @@ import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
 import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
@@ -25,22 +27,29 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.annotation.Resource;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.DatatypeConverter;
 
-import org.springframework.http.HttpRequest;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.dreamsecurity.ca.business.cert.common.CertConstants;
 import com.dreamsecurity.ca.business.cert.dao.CertDao;
+import com.dreamsecurity.ca.business.cert.dto.CertDto;
 import com.dreamsecurity.ca.business.cert.vo.CertVo;
 import com.dreamsecurity.ca.business.cert.vo.KeyVo;
 import com.dreamsecurity.ca.business.common.CommonConstants;
 import com.dreamsecurity.ca.business.login.common.LoginConstants;
 import com.dreamsecurity.ca.framework.cert.CertGeneratorFactory;
 import com.dreamsecurity.ca.framework.cert.KmsTrustManagerFactory;
+import com.dreamsecurity.ca.framework.cert.Pkcs12Creator;
 import com.dreamsecurity.ca.framework.cert.UserCertGenerator;
 import com.dreamsecurity.ca.framework.init.CaSettings;
 import com.dreamsecurity.ca.framework.utils.CaUtils;
@@ -54,40 +63,200 @@ import sun.security.x509.KeyIdentifier;
 @Service
 public class CertService {
 	
+	private static final Logger logger = Logger.getLogger( CertService.class );
+	
 	@Resource
 	private CertDao certDao;
 	
-	public String downloadCertPemFile( int certId, HttpServletRequest request ) {
-		CertVo vo = selectCertUsingCertId( certId, request );
-		return DatatypeConverter.printBase64Binary( PemUtil.certToPem( vo.getFile() ).getBytes() );
-	}
-	
-	public String downloadCertBinaryFile( int certId, HttpServletRequest request ) throws IOException {
-		CertVo vo = selectCertUsingCertId( certId, request );
-		return DatatypeConverter.printBase64Binary( vo.getFile() );
-	}
-	
-	private CertVo selectCertUsingCertId( int certId, HttpServletRequest request ) {
-		CertVo vo = new CertVo();
-		vo.setId( certId );
-		vo = certDao.selectCertBinary( vo );
+	public String downloadCert( HttpServletRequest request, int certId ) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, KeyStoreException, IOException {
+		JSONObject body = new JSONObject( (String)request.getAttribute( "body" ) );
 		
-		return vo;
-	}
-	
-	public String downloadPkcs8KeyFile( int certId, HttpServletRequest request ) {
-		KeyVo kVo = selectCertPrivateKeyUsingCertId( certId, request );
+		if ( !body.has( "exportWhat" ) ) throw new IllegalArgumentException( "exportWhat is null." );
+		int exportWhat = body.getInt( "exportWhat" );
 		
-		return DatatypeConverter.printBase64Binary( kVo.getPrivateKey() );
-	}
-	
-	public String downloadPkcs8PemFile( int certId, HttpServletRequest request ) {
-		KeyVo kVo = selectCertPrivateKeyUsingCertId( certId, request );
+		if ( exportWhat == 1 /*KeyPair*/ ) {
+			return DatatypeConverter.printBase64Binary( exportKeyPair( request, body, certId ) );
+		} else if ( exportWhat == 2 /*PrivateKey*/ ) {
+			return DatatypeConverter.printBase64Binary( exportPrivateKey( request, body, certId ) );
+		} else if ( exportWhat == 3 /*PublicKey*/ ) {
+			return DatatypeConverter.printBase64Binary( exportPublicKey( body, certId ) );
+		} else if ( exportWhat == 4 /*CertChain*/ ) {
+			return DatatypeConverter.printBase64Binary( exportCertChain( request, body, certId ) );
+		} 
 		
-		return DatatypeConverter.printBase64Binary( PemUtil.pkcs8ToPem( kVo.getPrivateKey() ).getBytes() );
+		throw new IllegalArgumentException( "exportWhat value is null." );
 	}
 	
-	private KeyVo selectCertPrivateKeyUsingCertId( int certId, HttpServletRequest request ) {
+	private byte[] exportKeyPair( HttpServletRequest request, JSONObject body, int certId ) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, IOException, KeyStoreException{
+		
+		if ( !body.has( "exportType") ) throw new IllegalArgumentException( "exportType is null. " );
+		
+		KeyVo kVo = selectCertKeyPairUsingCertId( certId, request );
+		CertDto cDto = getCertChain( certId );
+		
+		byte[] retKey;
+		boolean isEncrypted = false;
+		if ( !body.has( "password" ) || body.getString( "password" ).equals( "" ) ) 
+			retKey = kVo.getPrivateKey();
+		else {
+			retKey = Pkcs12Creator.enc( kVo.getPrivateKey(), body.getString( "password" ) );
+			isEncrypted = true;
+		}
+		
+		if ( body.getInt( "exportType" ) == 1 /*PKCS12*/ ) {
+			logger.info( "export PKCS Key Pair");
+			
+			String pin = "";
+			if ( body.has( "pin" ) || !body.getString( "pin" ).equals( "" ) ) 
+			 	pin = body.getString( "pin" );
+				
+			return Pkcs12Creator.generatePkcs12( pin, cDto.getEeCertVo().getSubject(), retKey, cDto.getCertChain() );
+			
+		} else if ( body.getInt( "exportType" ) == 2 /*PEM*/ ) {
+			logger.info( "export PEM Key Pair");
+			
+			StringBuilder pemBuilder;
+			
+			pemBuilder = getPrivateKeyPem( retKey, isEncrypted );
+			for ( X509Certificate cert : cDto.getCertChain() ) pemBuilder.append( PemUtil.certToPem( cert.getEncoded() ) );
+
+			return pemBuilder.toString().getBytes();
+			
+		} else {
+			throw new IllegalArgumentException( "export type value is invalid." );
+		}
+	}
+	
+	private byte[] exportPrivateKey( HttpServletRequest request, JSONObject body, int certId ) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, IOException {
+		
+		if ( !body.has( "isPem" ) ) throw new IllegalArgumentException( "isPem is null." );
+		
+		KeyVo kVo = selectCertKeyPairUsingCertId( certId, request );
+		byte[] retKey;
+		boolean isEncrypted = false;
+		
+		
+		if ( !body.has( "password" ) || body.getString( "password" ).equals( "" ) ) {
+			logger.info( "export non-cryptedKey.");
+			retKey = kVo.getPrivateKey();
+		} else {
+			logger.info( "export encryptedKey.");
+			retKey = Pkcs12Creator.enc( kVo.getPrivateKey(), body.getString( "password" ) );
+			isEncrypted = true;
+		}
+		
+		if ( body.getBoolean( "isPem" ) ) {
+			return getPrivateKeyPem( retKey, isEncrypted ).toString().getBytes();
+		} 
+
+		return retKey;
+	}
+	
+	private byte[] exportPublicKey( JSONObject body, int certId ) {
+		logger.info( "export publickey.");
+		if ( !body.has( "isPem" ) ) throw new IllegalArgumentException( "isPem is null." );
+		
+		KeyVo kVo = selectCertPublicKeyUsingCertId( certId );
+		
+		if ( body.getBoolean( "isPem" ) ) {
+			return PemUtil.publicKeyToPem( kVo.getPublicKey() ).getBytes();
+		} 
+		
+		return kVo.getPublicKey();
+	}
+	
+	private byte[] exportCertChain( HttpServletRequest request, JSONObject body, int certId ) throws CertificateException {
+		if ( !body.has( "exportType") || !body.has( "isPem" ) ) throw new IllegalArgumentException( "exportType or isPem is null." );
+		
+		CertDto cDto = getCertChain( certId );
+		byte[] retCert;
+		
+		if ( body.getInt( "exportType" ) == 1 /*HEAD*/ ) {
+			logger.info( "export one certificate");
+			retCert = cDto.getEeCertVo().getFile();
+			
+			if ( body.getBoolean( "isPem") ) return PemUtil.certToPem( retCert ).getBytes();
+			else return retCert;
+			
+		} else if ( body.getInt( "exportType" ) == 2 /*ENTIRE*/ ) {
+			logger.info( "export entire certificates");
+			StringBuilder certSb = new StringBuilder();
+			
+			for ( X509Certificate cert : cDto.getCertChain() )  {
+				certSb.append( PemUtil.certToPem( cert.getEncoded() ) );
+			}
+		
+			return certSb.toString().getBytes();
+			
+		} else throw new IllegalArgumentException( "export type value is invalid." );
+	}
+	
+	private CertDto getCertChain( int certId ) throws CertificateException {
+		CertVo eeCertVo = new CertVo();
+		CertDto cDto = new CertDto();
+		
+		eeCertVo.setId( certId );
+		eeCertVo = certDao.selectCertOneUsingCertId( eeCertVo );
+		eeCertVo.setGroupName( eeCertVo.getOuType() ); // 수정해야함 ㅡㅡ
+		
+		CertVo rootCertVo;
+		
+		if ( eeCertVo.getType() == 0 /*Root CA*/ ) {
+			logger.info( "make certificate Chain...: current Cert is RootCA.");
+			X509Certificate eeCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( eeCertVo.getFile() ) );
+			
+			cDto.setCertChain( new X509Certificate[]{ eeCert } );
+			
+		} else if ( eeCertVo.getType() == 1 /*Intermediate CA*/ ) {
+			logger.info( "make certificate Chain...: current Cert is IntermedicateCA.");
+			rootCertVo = certDao.selectRootCertAndKeyInfoOne();
+			
+			X509Certificate eeCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( eeCertVo.getFile() ) );
+			X509Certificate rootCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( rootCertVo.getFile() ) );
+			
+			cDto.setCertChain( new X509Certificate[]{ eeCert, rootCert } );
+			
+		} else if ( eeCertVo.getType() == 2 /*End Entity Cert*/) {
+			logger.info( "make certificate Chain...: current Cert is End Entyity Certificate.");
+			rootCertVo = certDao.selectRootCertAndKeyInfoOne();
+			CertVo interCertVo = certDao.selectIntermediateCertAndKeyInfoOne( eeCertVo );
+			
+			X509Certificate eeCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( eeCertVo.getFile() ) );
+			X509Certificate interCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( interCertVo.getFile() ) );
+			X509Certificate rootCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( rootCertVo.getFile() ) );
+		
+			cDto.setCertChain( new X509Certificate[]{ eeCert, interCert, rootCert } );
+			
+		} else {
+			throw new IllegalArgumentException( "CertType(certLevel) is null." );
+		}
+		
+		cDto.setEeCertVo( eeCertVo );
+		
+		return cDto;
+	}
+	
+	private StringBuilder getPrivateKeyPem( byte[] privateKey, boolean isEncrypted ) {
+		StringBuilder pemBuilder = new StringBuilder();
+		
+		if ( isEncrypted ) 
+			pemBuilder.append( PemUtil.encryptedPriKeyToPem( privateKey ) );
+		else 
+			pemBuilder.append( PemUtil.priKeyToPem( privateKey ) );
+		
+		return pemBuilder;
+	}
+	
+	private KeyVo selectCertPublicKeyUsingCertId( int certId ) {
+		CertVo cVo = new CertVo();
+		
+		cVo.setId( certId );
+		KeyVo kVo = certDao.selectPublicKeyBinary( cVo );
+		
+		return kVo;
+	}
+	
+	private KeyVo selectCertKeyPairUsingCertId( int certId, HttpServletRequest request ) {
 		String userId = request.getSession().getAttribute( LoginConstants.SESSION_ID ).toString();
 		CertVo cVo = new CertVo();
 		
@@ -97,7 +266,7 @@ public class CertService {
 		if ( certDao.selectCertUsingSubject( cVo ) == null ) 
 			throw new IllegalAccessError( "there is no authorization for download it.");
 		
-		KeyVo kVo = certDao.selectKeyBinary( cVo );
+		KeyVo kVo = certDao.selectKeyPairBinary( cVo );
 		
 		return kVo;
 	}

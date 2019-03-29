@@ -21,6 +21,10 @@ public class CertDao {
 	private static String certNamespace="com.dreamsecurity.mapper.cert";
 	private static String keyNamespace="com.dreamsecurity.mapper.key";
 	
+	public CertVo selectCertOneUsingCertId( CertVo vo ) {
+		return session.selectOne( certNamespace + ".selectCertOneUsingCertId", vo );
+	}
+	
 	public List<Map<String, Object>> selectCertList( String sessionId ) {
 		Map<String, Object> paramMap = new HashMap<>();
 		
@@ -32,8 +36,12 @@ public class CertDao {
 		return session.selectOne( certNamespace + ".selectCertBinary", vo );
 	}
 	
-	public KeyVo selectKeyBinary( CertVo vo ) {
-		return session.selectOne( keyNamespace + ".selectKeyBinary", vo );
+	public KeyVo selectKeyPairBinary( CertVo vo ) {
+		return session.selectOne( keyNamespace + ".selectKeyPairBinary", vo );
+	}
+	
+	public KeyVo selectPublicKeyBinary( CertVo vo ) {
+		return session.selectOne( keyNamespace + ".selectPublicKeyBinary", vo );
 	}
 	
 	public CertVo selectCertUsingSubject( CertVo vo ) {

@@ -38,10 +38,53 @@
 			<th>발급자</th>
 			<th>신청자</th>
 			<th>ouType</th>
-			<th>다운로드</th>
+			<th>관리</th>
 		</tr>
 	</table>
+	
+	<div class="pop-layer" id="viewPop">
+		<h2>CERTIFICATE INFO</h2>
+		<h2>EXPORT OPTION</h2>
+		<hr>
+		<input type="hidden" id="certId4Managing" />
+		<input type="radio" name="exportWhat" value="1" checked /> 키쌍
+		<input type="radio" name="exportWhat" value="2"/> 개인키(p8)
+		<input type="radio" name="exportWhat" value="3"/> 공개키
+		<input type="radio" name="exportWhat" value="4" /> 인증서 체인(X.509)
+		<br><br>
+		<div id="keyPairDv">
+			<input type="radio" name="keyPairExpType" value="1" checked >PKCS12
+			<input type="radio" name="keyPairExpType" value="2"> PEM <br>
+			PIN : <input type="password" id="keyPairPin"><br>
+			PIN 확인 : <input type="password" id="keyPairPinChk"><br>
+			비밀번호 : <input type="password" id="keyPairPw"><br>
+			비밀번호 확인 : <input type="password" id="keyPairPwChk"><br>
+		</div>
+		
+		<div id="privateKeyDv" style="display:none;">
+			비밀번호 : <input type="password" id="privateKeyPw"><br>
+			비밀번호 확인 : <input type="password" id="privateKeyPwChk"><br>
+			<input type="checkbox" name="privateKeyExpType">PEM 	
+		</div>
+		<div id="publicKeyDv" style="display:none;">
+			<input type="checkbox" name="publicKeyExpType">PEM
+		</div>
+		<div id="certChainDv" style="display:none;">
+			<input type="radio" name="certChainExpType" value="1" checked>HEAD
+			<input type="radio" name="certChainExpType" value="2"> ENTIRE <br>
 
+			<input type="checkbox" name="certOutputType" value="pem">PEM
+		</div>
+		<br>
+		<a href="javascript:;" onclick="downloadCert()">
+			<span>다운로드 </span>
+		</a>
+		<br>
+		<a href="javascript:;" onclick="certManagingPopClose()">
+			<span>close the door</span>
+		</a>
+	</div>
+	<div id="fade" class="black_overlay"></div> 
 <style>
 	.fileDrop {
 		width: 50%;
@@ -111,10 +154,7 @@ $(function(){
 						"<td>" + list.data[i].outype + "</td>" +
 // 						"<td><a href=/cert/download/'" + list.data[i].id + "' >다운로드</a></td>" + 
 						"<td>" +
-							"<a href=javascript:; onclick=certBinDownload('" + list.data[i].id + "')>인증서(bin)</a> &nbsp;" +
-							"<a href=javascript:; onclick=certPemDownload('" + list.data[i].id + "')>인증서(pem)</a> &nbsp;" +
-							"<a href=javascript:; onclick=pkcs8KeyDownload('" + list.data[i].id + "')>키(p8,bin)</a>" +
-							"<a href=javascript:; onclick=pkcs8PemDownload('" + list.data[i].id + "')>키(p8,pem)</a>" +
+							"<a href=javascript:; onclick=certManagingPopOpen('" + list.data[i].id + "')>EXPORT</a>" +
 						"</td>" +
 					"</tr>");
 			});
@@ -155,55 +195,42 @@ $(function(){
 			}
 		}  
 	});
+	
+	$('input[type=radio][name=exportWhat]').change(function() {
+		none4Display();
+		if ( this.value == 1 ) {
+			showKeyPairInput();
+		} else if ( this.value == 2 ) {
+			showPrivateKeyInput();
+		} else if ( this.value == 3 ) {
+			showPublicKeyInput();
+		} else if ( this.value == 4 ) {
+			showCertChainInput();
+		}
+	});
+	
+	$('input[type=radio][name=certChainExpType]').change(function() {
+		if ( this.value == '1' /*HEAD*/ ) {
+			$('input[type=checkbox][name=certOutputType]').prop('disabled', false);
+		} else if ( this.value =='2' /*ENTIRE*/ ) {
+			$('input[type=checkbox][name=certOutputType]').prop("checked",true);
+			$('input[type=checkbox][name=certOutputType]').prop('disabled', true);
+		}
+	});
+	
+	$('input[type=radio][name=keyPairExpType]').change(function() {
+		if ( this.value == '1' ) {
+			$('#keyPairPin').prop('disabled', false);
+			$('#keyPairPinChk').prop('disabled', false);
+		} else if ( this.value='2' ) {
+			$('#keyPairPin').val("");
+			$('#keyPairPinChk').val("");
+			
+			$('#keyPairPin').prop('disabled', true);
+			$('#keyPairPinChk').prop('disabled', true);
+		}
+	});
 });
-
-function certBinDownload( id ) {
-   
-	$.ajax({ 
-		url: '/cert/certBinDownload/' + id,
-		type: 'POST',   
-		success: function (data) {
-			console.log(data);
-			b64ToFileSave("cert.cer", data.fileB64);
-	    }    
-	});    
-}
-
-function certPemDownload( id ) {
-	   
-	$.ajax({ 
-		url: '/cert/certPemDownload/' + id,
-		type: 'POST',   
-		success: function (data) {
-			console.log(data);
-			b64ToFileSave("cert.cer", data.fileB64);
-	    }    
-	});    
-}
-
-function pkcs8KeyDownload( id ) {
-	   
-	$.ajax({ 
-		url: '/cert/pkcs8KeyDownload/' + id,
-		type: 'POST',   
-		success: function (data) {
-			console.log(data);
-			b64ToFileSave("cert_pri.key", data.fileB64);
-	    }    
-	});    
-}
-
-function pkcs8PemDownload( id ) {
-	   
-	$.ajax({ 
-		url: '/cert/pkcs8PemDownload/' + id,
-		type: 'POST',   
-		success: function (data) {
-			console.log(data);
-			b64ToFileSave("cert_pri.pem", data.fileB64);
-	    }    
-	});    
-}
 
 function ifNotSelectGroup() {
 	if ( !$('#groupSolutionName').val() ) 
@@ -222,6 +249,124 @@ function logout() {
 		}
 	}); 
 }
+
+function certManagingPopOpen( certId ) {
+	$("#certId4Managing").val( certId );
+	
+	$("#fade").css("display", "block");
+	$("#viewPop").css("display", "block");
+}
+
+function certManagingPopClose() {
+	$("#viewPop").css("display", "none");
+	$("#fade").css("display", "none");
+}
+
+function showKeyPairInput() {
+	$('#keyPairDv').css("display","block");
+	
+}
+
+function showPrivateKeyInput() {
+	$('#privateKeyDv').css("display","block");
+}
+
+function showPublicKeyInput() {
+	$('#publicKeyDv').css("display","block");
+}
+
+function showCertChainInput() {
+	$('#certChainDv').css("display","block");
+}
+
+function none4Display() {
+	$('#certChainDv').css("display","none");
+	$('#publicKeyDv').css("display","none");
+	$('#privateKeyDv').css("display","none");
+	$('#keyPairDv').css("display","none");
+}
+
+function downloadCert() {
+	var certId = $('#certId4Managing').val();
+	var data;
+	var fExt;
+	
+	if ( $('input[type=radio][name=exportWhat]:checked').val() == 1 ) {
+		if ( $('#keyPairPw').val() != $('#keyPairPwChk').val() ) {
+			alert( '키 비밀번호 다름' );
+			return;
+		}
+		
+		if ( $('#keyPairPin').val() != $('#keyPairPinChk').val() ) {
+			alert( 'PIN 다름' );
+			return;
+		}
+		
+		data = {
+			"exportWhat":$('input[type=radio][name=exportWhat]:checked').val(),				
+			"exportType":$('input[type=radio][name=keyPairExpType]:checked').val(),
+			"password": $('#keyPairPw').val(),
+			"pin": $('#keyPairPin').val()
+		}
+		
+		if ( $('input[type=radio][name=keyPairExpType]:checked').val() == 1 )
+			fExt = "p12";
+		else if ( $('input[type=radio][name=keyPairExpType]:checked').val() == 2 )
+			fExt = "pem";
+		
+		console.log( data );
+	 } else if ( $('input[type=radio][name=exportWhat]:checked').val() == 2 ) {
+		if ( $('#privateKeyPw').val() != $('#privateKeyPwChk').val() ) {
+			alert( '비밀번호 다름' );
+			return;
+		}
+		
+		data = {
+			"exportWhat":$('input[type=radio][name=exportWhat]:checked').val(),				
+			"isPem":$('input[type=checkbox][name=privateKeyExpType]').is(':checked'),
+			"password": $('#privateKeyPw').val()
+		}
+		
+		fExt = "pkcs8";
+		
+		console.log( data);
+	 } else if ( $('input[type=radio][name=exportWhat]:checked').val() == 3 ) {
+		data = {
+			"exportWhat":$('input[type=radio][name=exportWhat]:checked').val(),
+			"isPem":$('input[type=checkbox][name=publicKeyExpType]').is(':checked')
+		} 
+		
+		fExt = "pub";
+		
+		console.log( data);
+	 } else if ( $('input[type=radio][name=exportWhat]:checked').val() == 4 ) {
+		 data = {
+   		 	"exportWhat":$('input[type=radio][name=exportWhat]:checked').val(),
+			"exportType":$('input[type=radio][name=certChainExpType]:checked').val(),
+			"isPem":$('input[type=checkbox][name=certOutputType]').is(':checked')
+		 }
+		 
+		 fExt = "cer";
+		 
+		 console.log( data);
+	}
+	
+	$.ajax({
+		url: "/cert/cert-download/" + certId,
+		type:'post',
+		dataType: "JSON",
+		data: JSON.stringify( data ),
+		success:function(data) {
+			b64ToFileSave("user." + fExt, data.fileB64);
+		},
+		error:function( response ) {
+			var r = jQuery.parseJSON(response.responseText);
+			alert ( r );
+		}
+	});
+}
+
+
 </script>
 
 <%@ include file="/WEB-INF/views/common/bottom.jsp"%>

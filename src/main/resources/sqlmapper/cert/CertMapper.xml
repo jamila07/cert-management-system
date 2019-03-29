@@ -18,7 +18,7 @@
 		<result column="file" property="file" />
 		<result column="issuing_request_date" property="issuingRequestDate" />
 		<result column="start_date" property="startDate" />
-		<result column="end_date" property="end_date" />
+		<result column="end_date" property="endDate" />
 		<result column="issuer" property="issuer" />
 		<result column="subject" property="subject" />
 		<result column="subject_dn" property="subjectDn" />
@@ -28,6 +28,23 @@
 		<result column="ou_type" property="ouType" />
 		<association property="keyVo" resultMap="keyVoMap"/>
 	</resultMap>
+	
+	<select id="selectCertOneUsingCertId" parameterType="certVo" resultMap="certKeyMap">
+		select
+			c.id,
+			file,
+			subject_dn,
+			start_date,
+			end_date,
+			issuer,
+			subject,
+			type,
+			ou_type
+		from
+			cert c
+		where
+			c.id = #{id}
+	</select>
 	
 	<select id="selectCertList" resultType="map" parameterType="map">
 		select
@@ -47,7 +64,9 @@
 	<select id="selectCertBinary" parameterType="certVo" resultType="certVo">
 		select
 			id,
-			file
+			file,
+			type,
+			ou_type ouType
 		from
 			cert
 		where
