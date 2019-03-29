@@ -42,47 +42,63 @@
 		</tr>
 	</table>
 	
-	<div class="pop-layer" id="viewPop">
+	<div class="pop-layer" id="viewPop" style="height: 80%;">
 		<h2>CERTIFICATE INFO</h2>
+		<hr>
+		<div>
+			<table id="certOneInfoTbl" border=1>
+				<tr>
+					<th>SubjectDn</th>
+					<th>시작</th>
+					<th>끝</th>
+					<th>발급자</th>
+					<th>신청자</th>
+				</tr>
+			</table>
+		</div>
 		<h2>EXPORT OPTION</h2>
 		<hr>
-		<input type="hidden" id="certId4Managing" />
-		<input type="radio" name="exportWhat" value="1" checked /> 키쌍
-		<input type="radio" name="exportWhat" value="2"/> 개인키(p8)
-		<input type="radio" name="exportWhat" value="3"/> 공개키
-		<input type="radio" name="exportWhat" value="4" /> 인증서 체인(X.509)
-		<br><br>
-		<div id="keyPairDv">
-			<input type="radio" name="keyPairExpType" value="1" checked >PKCS12
-			<input type="radio" name="keyPairExpType" value="2"> PEM <br>
-			PIN : <input type="password" id="keyPairPin"><br>
-			PIN 확인 : <input type="password" id="keyPairPinChk"><br>
-			비밀번호 : <input type="password" id="keyPairPw"><br>
-			비밀번호 확인 : <input type="password" id="keyPairPwChk"><br>
-		</div>
-		
-		<div id="privateKeyDv" style="display:none;">
-			비밀번호 : <input type="password" id="privateKeyPw"><br>
-			비밀번호 확인 : <input type="password" id="privateKeyPwChk"><br>
-			<input type="checkbox" name="privateKeyExpType">PEM 	
-		</div>
-		<div id="publicKeyDv" style="display:none;">
-			<input type="checkbox" name="publicKeyExpType">PEM
-		</div>
-		<div id="certChainDv" style="display:none;">
-			<input type="radio" name="certChainExpType" value="1" checked>HEAD
-			<input type="radio" name="certChainExpType" value="2"> ENTIRE <br>
-
-			<input type="checkbox" name="certOutputType" value="pem">PEM
+		<div>
+			<input type="hidden" id="certId4Managing" />
+			<input type="radio" name="exportWhat" value="1" checked /> 키쌍
+			<input type="radio" name="exportWhat" value="2"/> 개인키(p8)
+			<input type="radio" name="exportWhat" value="3"/> 공개키
+			<input type="radio" name="exportWhat" value="4" /> 인증서 체인(X.509)
+			<br><br>
+			<div id="keyPairDv">
+				<input type="radio" name="keyPairExpType" value="1" checked >PKCS12
+				<input type="radio" name="keyPairExpType" value="2"> PEM <br>
+				PIN : <input type="password" id="keyPairPin"><br>
+				PIN 확인 : <input type="password" id="keyPairPinChk"><br>
+				비밀번호 : <input type="password" id="keyPairPw"><br>
+				비밀번호 확인 : <input type="password" id="keyPairPwChk"><br>
+			</div>
+			
+			<div id="privateKeyDv" style="display:none;">
+				비밀번호 : <input type="password" id="privateKeyPw"><br>
+				비밀번호 확인 : <input type="password" id="privateKeyPwChk"><br>
+				<input type="checkbox" name="privateKeyExpType">PEM 	
+			</div>
+			<div id="publicKeyDv" style="display:none;">
+				<input type="checkbox" name="publicKeyExpType">PEM
+			</div>
+			<div id="certChainDv" style="display:none;">
+				<input type="radio" name="certChainExpType" value="1" checked>HEAD
+				<input type="radio" name="certChainExpType" value="2"> ENTIRE <br>
+	
+				<input type="checkbox" name="certOutputType" value="pem">PEM
+			</div>
+			<br>
+			<a href="javascript:;" onclick="downloadCert()">
+				<span>다운로드 </span>
+			</a>
 		</div>
 		<br>
-		<a href="javascript:;" onclick="downloadCert()">
-			<span>다운로드 </span>
-		</a>
-		<br>
-		<a href="javascript:;" onclick="certManagingPopClose()">
-			<span>close the door</span>
-		</a>
+		<div style="text-align: center;">
+			<a href="javascript:;" onclick="certManagingPopClose()" >
+				<span >close the door</span>
+			</a>
+		</div>
 	</div>
 	<div id="fade" class="black_overlay"></div> 
 <style>
@@ -253,6 +269,12 @@ function logout() {
 function certManagingPopOpen( certId ) {
 	$("#certId4Managing").val( certId );
 	
+	if ( $('#certOneInfoTbl tr').length > 1 ) {
+		$('#certOneInfoTbl  > tbody:last > tr:last').remove();
+	}
+	
+	loadCertInfoOne( certId );
+	
 	$("#fade").css("display", "block");
 	$("#viewPop").css("display", "block");
 }
@@ -366,6 +388,19 @@ function downloadCert() {
 	});
 }
 
+function loadCertInfoOne( certId ) {
+
+	for ( i=0; i<$("#certTable tr").length-1; i++ ) {
+		if ( $("#certTable tr:eq( " + i + ")").find("td").eq(0).html() == certId ) {
+			$("#certOneInfoTbl").append( "<tr>" + "<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(1).html() + "</td>" +
+					"<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(2).html() + "</td>" +
+			 		"<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(3).html() + "</td>" +
+					"<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(4).html() + "</td>" +
+					"<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(5).html() + "</td>" + "</tr>" 
+			);
+		}
+	}
+}
 
 </script>
 

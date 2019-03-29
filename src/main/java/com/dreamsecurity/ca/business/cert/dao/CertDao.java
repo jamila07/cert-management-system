@@ -96,4 +96,10 @@ public class CertDao {
 		} else return false;
 	}
 	
+	//현재 사용안함 상황보고 지워야함
+	@Deprecated
+	public CertVo selectCertAndGroupUsingOuType( CertVo vo ) {
+		return session.selectOne( certNamespace + ".selectCertAndGroupUsingOuType", vo );
+	}
+	
 }

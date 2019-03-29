@@ -6,13 +6,23 @@
 <mapper namespace = "com.dreamsecurity.mapper.cert">
 	
 	<resultMap type="keyVo" id="keyVoMap">
-		<id column="ID" property="id" />
+		<id column="key_id" property="id" />
 		<result column="key_identifier" property="publicKeyIdentifier" />
 		<result column="public_key" property="publicKey" />
 		<result column="private_key" property="privateKey" />
 	</resultMap>
 	
-	<resultMap type="certVo" id="certKeyMap">
+	<resultMap type="groupVo" id="groupVoMap">
+		<id column="group_id" property="id" />
+		<result column="NAME" property="name" />
+		<result column="ALT_NAME" property="altName" />
+		<result column="CREATE_DATE" property="createDate" />
+		<result column="CREATOR" property="creator" />
+		<result column="STATE" property="state" />
+		<result column="DESCRIPTION" property="description" />
+	</resultMap>
+	
+	<resultMap type="certVo" id="certVoMap">
 		<id column="ID" property="id" />
 		<result column="serial_number" property="serialNumber" />
 		<result column="file" property="file" />
@@ -27,9 +37,10 @@
 		<result column="type" property="type" />
 		<result column="ou_type" property="ouType" />
 		<association property="keyVo" resultMap="keyVoMap"/>
+		<association property="groupVo" resultMap="groupVoMap"/>
 	</resultMap>
 	
-	<select id="selectCertOneUsingCertId" parameterType="certVo" resultMap="certKeyMap">
+	<select id="selectCertOneUsingCertId" parameterType="certVo" resultMap="certVoMap">
 		select
 			c.id,
 			file,
@@ -152,7 +163,7 @@
 		);
 	</insert>
 	
-	<select id="selectRootCertAndKeyInfoOne" resultMap="certKeyMap">
+	<select id="selectRootCertAndKeyInfoOne" resultMap="certVoMap">
 		select
 			c.file,
 			c.subject,
@@ -164,7 +175,7 @@
 			c.type = 0
 	</select>
 	
-	<select id="selectIntermediateCertAndKeyInfoOne" parameterType="certVo" resultMap="certKeyMap">
+	<select id="selectIntermediateCertAndKeyInfoOne" parameterType="certVo" resultMap="certVoMap">
 		select
 			c.file,
 			c.subject,
@@ -194,5 +205,20 @@
 		where
 			type = 1 and
 			ou_type = #{ouType}
+	</select>
+	
+	<select id="selectCertAndGroupUsingOuType" parameterType="certVo" resultMap="certVoMap">
+		select 
+			c.id,
+			subject,
+			issuer,
+			start_date,
+			end_date,
+			subject_dn,
+			gi.name
+		from cert c
+		inner join group_info gi on c.ou_type = gi.id
+		where 
+			c.id = #{id}
 	</select>
 </mapper>
