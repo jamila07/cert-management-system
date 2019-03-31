@@ -56,6 +56,20 @@ public class CertController {
 	@Inject
 	private WebAuditService webAuditService;
 	
+//	@GetMapping("/")
+//	public <T>T listOrPage( ) {
+//		ModelAndView mv = new ModelAndView(); 
+//		mv.setViewName( "/cert/view" ); 
+//		return (T) mv;
+//		
+//		ResponseEntity<?> entity = null;
+//		Map<String, Object> entities = new HashMap<String, Object>();
+//			
+//		entities.put( "data", "SUCK" );
+//		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+//		return (T) entity;
+//	}
+	
 	@GetMapping("home.do")
 	public ModelAndView page( HttpServletRequest request ) {		
 		ModelAndView mv = new ModelAndView();
@@ -66,6 +80,8 @@ public class CertController {
 		
 		return mv;
 	}
+	
+	
 	
 	@PostMapping("/register.do")
 	public ResponseEntity<?> register( HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, IllegalAccessException, InvalidKeySpecException, IOException {

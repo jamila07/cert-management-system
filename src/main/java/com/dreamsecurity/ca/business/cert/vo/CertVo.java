@@ -2,6 +2,8 @@ package com.dreamsecurity.ca.business.cert.vo;
 
 import java.util.Date;
 
+import com.dreamsecurity.ca.business.group.vo.GroupVo;
+
 public class CertVo {
 	private int id;
 	private int serialNumber;
@@ -19,6 +21,7 @@ public class CertVo {
 	
 	// Join
 	private KeyVo keyVo;
+	private GroupVo groupVo;
 	
 	// JSP TO Controller : JSON
 	private String citeName;
@@ -28,6 +31,12 @@ public class CertVo {
 	private int groupName;
 	private String groupSolutionName;
 	
+	public GroupVo getGroupVo() {
+		return groupVo;
+	}
+	public void setGroupVo(GroupVo groupVo) {
+		this.groupVo = groupVo;
+	}
 	public String getGroupSolutionName() {
 		return groupSolutionName;
 	}

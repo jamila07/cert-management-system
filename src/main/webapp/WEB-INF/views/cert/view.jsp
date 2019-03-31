@@ -29,7 +29,7 @@
 		<div class="uploadedList"></div>
 		
 	<h2>인증서 목록</h2>
-	<table id="certTable" border=1>
+	<table id="certTable" border=1 style="cursor:pointer">
 		<tr>
 			<th>번호</th>
 			<th>DN</th>
@@ -38,7 +38,6 @@
 			<th>발급자</th>
 			<th>신청자</th>
 			<th>ouType</th>
-			<th>관리</th>
 		</tr>
 	</table>
 	
@@ -168,10 +167,6 @@ $(function(){
 						"<td>" + list.data[i].issuer + "</td>" +
 						"<td>" + list.data[i].subject + "</td>" +
 						"<td>" + list.data[i].outype + "</td>" +
-// 						"<td><a href=/cert/download/'" + list.data[i].id + "' >다운로드</a></td>" + 
-						"<td>" +
-							"<a href=javascript:; onclick=certManagingPopOpen('" + list.data[i].id + "')>EXPORT</a>" +
-						"</td>" +
 					"</tr>");
 			});
 		}
@@ -246,6 +241,12 @@ $(function(){
 			$('#keyPairPinChk').prop('disabled', true);
 		}
 	});
+
+	$(document).on("click", "#certTable tr", function(e) {
+		if ( this.firstElementChild.textContent == "번호" ) return;
+		certManagingPopOpen( this.firstElementChild.textContent );
+	});
+
 });
 
 function ifNotSelectGroup() {
@@ -390,7 +391,7 @@ function downloadCert() {
 
 function loadCertInfoOne( certId ) {
 
-	for ( i=0; i<$("#certTable tr").length-1; i++ ) {
+	for ( i=0; i<$("#certTable tr").length; i++ ) {
 		if ( $("#certTable tr:eq( " + i + ")").find("td").eq(0).html() == certId ) {
 			$("#certOneInfoTbl").append( "<tr>" + "<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(1).html() + "</td>" +
 					"<td>" + $("#certTable tr:eq( " + i + ")").find("td").eq(2).html() + "</td>" +
