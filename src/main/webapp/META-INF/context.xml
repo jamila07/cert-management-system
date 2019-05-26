@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/">
+    <Resource auth="Container"
+              defaultAutoCommit="true"
+              driverClassName="org.postgresql.Driver"
+              factory="org.apache.commons.dbcp.BasicDataSourceFactory"
+              initialSize="1"
+              maxActive="70"
+              minIdle="0"
+              maxIdle="50"
+              removeAbandoned="true"
+              removeAbandonedTimeout="90"
+              logAbandoned="true"
+              testWhileIdle = "true"
+              name="jdbc/miniCaPostgres"
+              username="camanager"
+              password="camanager"
+              type="javax.sql.DataSource"
+              url="jdbc:postgresql://glaso.net:5432/minica?currentSchema=minica2018"
+              validationQuery="select 1" />
+</Context>
