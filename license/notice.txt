@@ -1,0 +1,14 @@
+Cert Generator 1.0.0.RELEASE
+Copyright glaso.net(ehdvudee) All Rights Reserved.
+
+This product is licensed to you under the Apache License, Version 2.0
+(the "License").
+
+This product includes software developed at
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes software from the Spring Framework,
+under the Apache License 2.0 (see: StringUtils.containsWhitespace())
+
+This product components may be licensed under different licenses.
+Apache 2.0, MIT and BSD
