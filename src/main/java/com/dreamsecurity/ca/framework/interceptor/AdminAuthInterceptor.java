@@ -3,11 +3,9 @@ package com.dreamsecurity.ca.framework.interceptor;
 import java.io.IOException;
 
 import javax.inject.Inject;
-import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.json.JSONObject;
 import org.springframework.web.servlet.handler.HandlerInterceptorAdapter;
 
 import com.dreamsecurity.ca.business.login.common.LoginConstants;
@@ -22,7 +20,14 @@ public class AdminAuthInterceptor  extends HandlerInterceptorAdapter {
 	@Override
 	public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 		UserVo vo = new UserVo();
-		vo.setLoginId( request.getSession().getAttribute( LoginConstants.SESSION_ID).toString() );
+		Object sessionId = request.getSession().getAttribute( LoginConstants.SESSION_ID);
+		
+		if ( sessionId == null ) {
+			setErr( response, "꺼지세요" );
+			return false;
+		}
+		
+		vo.setLoginId( sessionId.toString() );
 		vo = userDao.selectOneUser( vo );
 
 		if ( vo.getState() == 0 ) return true;

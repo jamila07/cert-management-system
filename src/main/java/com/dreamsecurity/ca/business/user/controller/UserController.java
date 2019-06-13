@@ -9,8 +9,7 @@ import javax.inject.Inject;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -29,16 +28,26 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @RequestMapping("/user")
 public class UserController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(UserController.class);
-	
 	@Inject
 	private UserService service;
 	
 	@Inject
 	private WebAuditService wAuditService;
 	
-	@GetMapping("home.do")
-	public ModelAndView page( HttpServletRequest request ) {
+	// 2019.4.2 - ehdvudee
+	// return: ModelAndView or ResponseEntitiy
+	// 위의 것만 리턴하면 경고에 대해 안전하다.
+	@SuppressWarnings("unchecked")
+	@GetMapping("")
+	public <T>T listOrPage( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
+		if ( request.getParameterMap().isEmpty() ) {
+			return (T) page( request );
+		} else {
+			return (T) showUserList( request, response );
+		}
+	}
+	
+	private ModelAndView page( HttpServletRequest request ) {
 		ModelAndView mv = new ModelAndView();
 		
 		mv.setViewName( "user/view");
@@ -47,25 +56,12 @@ public class UserController {
 		return mv;
 	}
 	
-	@PostMapping("/register.do")
-	public void register( HttpServletRequest request, HttpServletResponse response) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
-		service.registerAppliedUser( request );
-		wAuditService.insertAudit( request );
-	}
-	
-	@PostMapping("/reject.do")
-	public void rejectAppliedUser( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException {
-		service.rejectAppliedUser( request );
-		wAuditService.insertAudit( request );
-	}
-	
-	
-	@PostMapping(value="/showUserList.do")
-	public ResponseEntity<?> showUserList( HttpServletRequest request, HttpServletResponse response ) {
+	private ResponseEntity<?> showUserList( HttpServletRequest request, HttpServletResponse response ) {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
 		
 		entities.put( "data", service.showList( request ) );
+		entities.put( "status", "success" );
 		
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
 		
@@ -73,15 +69,51 @@ public class UserController {
 		return entity;
 	}
 	
-	@PostMapping(value="/chkOverlapUser/{userId}")
-	public ResponseEntity<?> chkOverlapUser( @PathVariable("userId") String userId, HttpServletRequest request, HttpServletResponse response ) {
+	@PostMapping("")
+	public ResponseEntity<?> register( HttpServletRequest request, HttpServletResponse response) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-
-		if ( service.chkOverlapUser( userId ) ) entities.put( "data", true );
-		else entities.put( "data", false );
 		
+		service.registerAppliedUser( request );
+		wAuditService.insertAudit( request );
+		
+		entities.put( "status", "success" );
+		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.CREATED);
+		
+		return entity;
+	}
+
+	@PostMapping(value="/{userId}")
+	public ResponseEntity<?> userIdPost( @PathVariable("userId") String userId, HttpServletRequest request, HttpServletResponse response ) {
+		ResponseEntity<?> entity = null;
+		Map<String, Object> entities = new HashMap<String, Object>();
+		JSONObject body = (JSONObject)request.getAttribute( "body" );
+		
+		if ( !body.has( "oper" ) ) throw new IllegalArgumentException( "oper is null." );
+		
+		if ( body.getString( "oper" ).equals( "chkOverlap" ) ) { 
+			if ( service.chkOverlapUser( userId ) ) entities.put( "data", true );
+			else entities.put( "data", false );
+		} else {
+			throw new IllegalArgumentException( "oper is not chkOverlap." );
+		}
+		
+		entities.put( "status" , "success" );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		
+		return entity;
+	}
+	
+	@GetMapping("{userId}/applied-groups")
+	public ResponseEntity<?> showJoinedGroup( @PathVariable("userId") String userId, HttpServletRequest request, HttpServletResponse response ) {
+		ResponseEntity<?> entity = null;
+		Map<String, Object> entities = new HashMap<String, Object>();
+		
+		entities.put( "data", service.showJoinedGroup( request, userId ) );
+		entities.put( "status", "success" );
+		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		
+		wAuditService.insertAudit( request );
 		
 		return entity;
 	}

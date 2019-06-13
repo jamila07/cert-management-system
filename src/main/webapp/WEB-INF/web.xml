@@ -46,37 +46,17 @@
 
 	<filter-mapping>
 		<filter-name>CharacterEncodingFilter</filter-name>
-		<url-pattern>/**</url-pattern>
+		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 
-	<!-- session filter -->
+	<!-- parse and save request body filter -->
 	<filter>
-		<filter-name>sessionFilter</filter-name>
-		<filter-class>com.dreamsecurity.ca.framework.filter.SessionFilter</filter-class>
-		<init-param>
-			<param-name>redirectPage</param-name>
-			<param-value>/</param-value>
-		</init-param>
-		<init-param>
-			<param-name>excludeURL</param-name>
-			<param-value>
-				/login.do,/logout.do,/user/register.do,/showGroupInfo.do
-			</param-value>
-		</init-param>
-	</filter>
-	<filter-mapping>
-		<filter-name>sessionFilter</filter-name>
-		<url-pattern>*.do</url-pattern>
-	</filter-mapping>
-
-	<!-- savingrequeststream filter -->
-	<filter>
-		<filter-name>requestBodyFilter</filter-name>
-		<filter-class>com.dreamsecurity.ca.framework.filter.RequestBodyFilter</filter-class>
+		<filter-name>parsingBodyFilter</filter-name>
+		<filter-class>com.dreamsecurity.ca.framework.filter.ParsingBodyFilter</filter-class>
 	</filter>
 
 	<filter-mapping>
-		<filter-name>requestBodyFilter</filter-name>
+		<filter-name>parsingBodyFilter</filter-name>
 		<url-pattern>/*</url-pattern>
 	</filter-mapping>
 	<!-- filter info end -->

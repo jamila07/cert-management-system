@@ -185,7 +185,8 @@
 		inner join keypair kp on c.key_id = kp.id
 		where
 			c.type = 1 and
-			c.ou_type = #{groupName}
+			c.ou_type = #{groupId} and
+			encode(c.subject_dn, 'escape') like '%' || #{groupSolutionName} || '%'
 	</select>
 	
 	<select id="selectRootCaOne" resultType="int">

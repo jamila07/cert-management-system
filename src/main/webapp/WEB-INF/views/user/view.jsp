@@ -21,9 +21,11 @@
 <script>
 $(function(){
 	$.ajax({ 
-		url: '/user/showUserList.do',
-		type: 'POST',
-		dataType: 'json', 
+		url: '/user',
+		type: 'GET',
+		data: {
+			"page":10
+		},
 		success: function(list) {  
 			
 			$.each(list.data, function(i){
@@ -40,18 +42,6 @@ $(function(){
 	});
 });
 
-function logout() { 
-	$.ajax({
-		url : '/logout.do',
-		success:function(data) {
-			alert("로그아웃");
-			window.location.href = data.redirect;
-		}, 
-		error: function (xhr, ajaxOptions, thrownError) {
-			alert(xhr.status);
-		}
-	}); 
-}
 </script>
 
 <%@ include file="/WEB-INF/views/common/bottom.jsp"%>

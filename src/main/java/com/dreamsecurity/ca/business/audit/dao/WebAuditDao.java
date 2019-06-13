@@ -14,24 +14,24 @@ import com.dreamsecurity.ca.business.common.domain.Criteria;
 
 @Repository
 public class WebAuditDao {
-	
+
 	@Inject
 	private SqlSession session;
-	
+
 	private static String namespace="com.dreamsecurity.mapper.audit";
-	
+
 	public List<Map<String, Object>> selectWebAduitList( Criteria cri ) {
 		Map<String, Object> paramMap = new HashMap<>();
-		
+
 		paramMap.put( "cri", cri );
-		
+
 		return session.selectList( namespace + ".selectWebAduitList", paramMap );
 	}
-	
+
 	public int selectWebAuditListCnt() {
 		return session.selectOne( namespace + ".selectWebAuditListCnt" );
 	}
-	
+
 	public void insertWebAudit( WebAuditVo vo ) {
 		session.insert( namespace + ".insertWebAudit", vo );
 	}

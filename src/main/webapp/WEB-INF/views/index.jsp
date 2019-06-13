@@ -24,7 +24,7 @@
 		<h3>연구개발2팀 인증서 관리 시스템</h3>
 	</div> 
 	<input type="hidden" name="loginToken" id="loginToken" value="<%= session.getId() %>">
-	<form id="loginForm" name="loginForm" method="post" action="login.do">
+	<form id="loginForm" name="loginForm" method="post" action="login">
 		<input type="hidden" name="sha256Pw"  id="sha256Pw" value=""/>
 		<div style="padding:20px; margin-top:10px; text-align: center;">
 			ID <input type="text" id="loginId" name="loginId" onkeypress="return enterLogin(event)" /><br>
@@ -43,7 +43,7 @@
 <div class="pop-layer" id="registerPop">
 	<div>
 		<p style="line-height:25px; color:#666;">
-			<form id="registerForm" name="registerForm" method="post" action="/user/register.do">
+			<form id="registerForm" name="registerForm" method="post" action="/user">
 				아이디: <input type="text" name="userId" id="userId" />
 				<a href="javascript:;" onclick="">중복검사</a><br>
 				비밀번호: <input type="password" name="password" id="password" /> <br>
@@ -119,10 +119,15 @@ var navi = 5;
 	}
 	
 	function signUpIdPressed() {
+		sendData = {
+			"oper":"chkOverlapUser"
+		}
 		userId = $("#userId").val();
 		
 		$.ajax({
-			url: '/user/chkOverlapUser/' + userId,
+			url: '/user/' + userId,
+			data: JSON.stringify(sendData),
+			dataType: 'json',
 			type: 'POST',
 			success: function( data ) {
 				console.log(data.data);
@@ -138,12 +143,9 @@ var navi = 5;
 			return;
 		}
 		
-		console.log( $("#loginToken").val() )
-		console.log( SHA256( $("#loginPw").val() ) )
-		console.log( SHA256( $("#loginToken").val() + SHA256( $("#loginPw").val() ) ) );
-		
 		$("#sha256Pw").val( SHA256( $("#loginToken").val() + SHA256( $("#loginPw").val() ) ) );
 		$("#loginPw").val("");
+		
 		submitData( form );
 	}
 	

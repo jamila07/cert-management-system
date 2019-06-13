@@ -3,6 +3,8 @@ package com.dreamsecurity.ca.business.group.vo;
 import java.util.Date;
 import java.util.List;
 
+import org.json.JSONObject;
+
 import com.dreamsecurity.ca.business.common.domain.Criteria;
 import com.dreamsecurity.ca.business.user.vo.UserVo;
 
@@ -16,13 +18,39 @@ public class GroupVo {
 	private String description;
 	private List<GroupSolutionVo> groupSolutionVo;
 	private Criteria cri;
-	
+
 	// JOIN
 	private UserVo userVo;
-	
+
 	// JSP to Controller
 	private String groupSolutionName;
-	
+
+	public GroupVo() {}
+
+	private GroupVo ( String an, String d, String gsn, String n ) {
+		this.altName = an;
+		this.description = n;
+		this.groupSolutionName = gsn;
+		this.name = n;
+	}
+
+	public static GroupVo deserialize( JSONObject body) {
+		validation( body, "altName" );
+		validation( body, "description" );
+		validation( body, "groupSolutionName" );
+		validation( body, "name" );
+
+		return new GroupVo( body.getString( "altName"),
+				body.getString( "description" ),
+				body.getString( "groupSolutionName" ),
+				body.getString( "name" ) );
+	}
+
+	private static boolean validation( JSONObject body, String variable ) {
+		if ( body.has( variable ) ) return true;
+		else throw new IllegalArgumentException( variable + " is null.");
+	}
+
 	public UserVo getUserVo() {
 		return userVo;
 	}

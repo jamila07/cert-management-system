@@ -183,33 +183,6 @@ public class CaUtils {
 		return voMap;
 	}
 	
-	public static JSONObject getJSONObject( HttpServletRequest request ) throws IOException {
-		return new JSONObject( getHTTPBody(request) );
-	}
-	
-	public static String getHTTPBody( HttpServletRequest request ) throws IOException {
-		StringBuffer jb = new StringBuffer();
-		String line = null;
-		BufferedReader body = null;
-		
-		try {
-			body = request.getReader();
-			
-			while ( ( line = body.readLine() ) != null ) {
-				jb.append(line);
-			}
-	
-			if ( jb.toString().length() == 0 ) {
-				
-				return null;
-			} else {
-				return jb.toString();
-			}
-		} finally {
-			body.close();
-		}
-	}
-	
 	public static byte[] convertMultiPartFileToBody( byte[] bytes ) {
 		byte[] padding = { 0x30, (byte)0xef, (byte)0xbf};
 		

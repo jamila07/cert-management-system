@@ -36,15 +36,12 @@ $(function(){
 });
 
 function goWebAuditList( page ) {
-	var sendData = {
-			"page": page
-	};
-	
 	$.ajax({ 
-		url: '/audit/showWebAuditList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
-		dataType: 'json', 
+		url: '/audit/web',
+		type: 'GET',
+		data: {
+			"page":page
+		},
 		success: function(list) { 
 			var i =0;
 			var j =0;
@@ -83,15 +80,12 @@ function goWebAuditList( page ) {
 }
 
 function goCertAuditList( page ) {
-	var sendData = {
-			"page": page
-	};
-	
 	$.ajax({ 
-		url: '/audit/showCertAuditList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
-		dataType: 'json', 
+		url: '/audit/cert',
+		type: 'GET',
+		data: {
+			"page":page
+		},
 		success: function(list) { 
 			var i =0;
 			var j =0;
@@ -126,18 +120,6 @@ function goCertAuditList( page ) {
 	});
 }
 
-function logout() { 
-	$.ajax({
-		url : '/logout.do',
-		success:function(data) {
-			alert("로그아웃");
-			window.location.href = data.redirect;
-		}, 
-		error: function (xhr, ajaxOptions, thrownError) {
-			alert(xhr.status);
-		}
-	}); 
-}
 </script>
 
 <%@ include file="/WEB-INF/views/common/bottom.jsp"%>

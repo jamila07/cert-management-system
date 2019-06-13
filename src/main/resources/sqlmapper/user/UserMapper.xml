@@ -121,8 +121,8 @@
 		select
 			id,
 			name,
-			depart_team,
-			job_level,
+			depart_team departTeam,
+			job_level jobLevel,
 			password,
 			state
 		from

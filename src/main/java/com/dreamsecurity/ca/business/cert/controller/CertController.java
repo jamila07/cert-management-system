@@ -24,8 +24,6 @@ import javax.xml.bind.DatatypeConverter;
 
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,109 +37,107 @@ import com.dreamsecurity.ca.business.audit.service.CertAuditService;
 import com.dreamsecurity.ca.business.audit.service.WebAuditService;
 import com.dreamsecurity.ca.business.cert.service.CertService;
 import com.dreamsecurity.ca.business.cert.vo.CertVo;
-import com.dreamsecurity.ca.framework.utils.CaUtils;
 
 @RestController
 @RequestMapping("/cert")
 public class CertController {
-	
-	private static final Logger logger = LoggerFactory.getLogger(CertController.class);
-	
+
 	@Inject
 	private CertService service;
-	
+
 	@Inject
 	private CertAuditService certAuditService;
-	
+
 	@Inject
 	private WebAuditService webAuditService;
-	
-//	@GetMapping("/")
-//	public <T>T listOrPage( ) {
-//		ModelAndView mv = new ModelAndView(); 
-//		mv.setViewName( "/cert/view" ); 
-//		return (T) mv;
-//		
-//		ResponseEntity<?> entity = null;
-//		Map<String, Object> entities = new HashMap<String, Object>();
-//			
-//		entities.put( "data", "SUCK" );
-//		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-//		return (T) entity;
-//	}
-	
-	@GetMapping("home.do")
-	public ModelAndView page( HttpServletRequest request ) {		
+
+	// 2019.4.2 - ehdvudee
+	// return: ModelAndView or ResponseEntitiy
+	// 위의 것만 리턴하면 경고에 대해 안전하다.
+	@SuppressWarnings("unchecked")
+	@GetMapping("")
+	public <T>T listOrPage( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
+		if ( request.getParameterMap().isEmpty() ) {
+			return (T) page( request );
+		} else {
+			return (T) showList( request, response );
+		}
+	}
+
+	private ModelAndView page( HttpServletRequest request ) {
 		ModelAndView mv = new ModelAndView();
 
 		mv.setViewName( "/cert/view" );
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return mv;
 	}
-	
-	
-	
-	@PostMapping("/register.do")
-	public ResponseEntity<?> register( HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, IllegalAccessException, InvalidKeySpecException, IOException {
+
+	private ResponseEntity<?> showList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		CertVo vo = null;
-		try {
-			vo = service.mappingObject( request );
-			service.register( request, vo );
-			entities.put( "redirect", "/cert/home.do" );
-			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-			
-			certAuditService.insertAudit( request, vo );
-			webAuditService.insertAudit( request );
-		} catch ( Exception e ) {
-			e.printStackTrace();
-			certAuditService.insertAudit( request, vo, e );
-			throw e;
-		}
-		
-		return entity;
-	}
-	
-	@PostMapping("showList.do")
-	public ResponseEntity<?> showList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
-			
+
 		entities.put( "data", service.showList( request ) );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		return entity;
 	}
-	
-	@PostMapping("cert-download/{certId}")
-	public ResponseEntity<?> downloadCert( @PathVariable("certId") int certId, HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, KeyStoreException, IOException {
+
+
+	@PostMapping("")
+	public ResponseEntity<?> registerAndVerifyCert( HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchProviderException, SignatureException, IllegalAccessException, InvalidKeySpecException, IOException, InvalidAlgorithmParameterException, CertPathBuilderException, JSONException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
-		entities.put( "fileB64", service.downloadCert( request, certId ) );
+		JSONObject body = (JSONObject) request.getAttribute( "body" );
+
+		if ( body.has( "oper" ) && body.getString( "oper" ).equals( "verify" ) ) {
+
+			return uploadFile( entity, entities, body );
+
+		} else if ( body.has( "oper" ) && body.getString( "oper" ).equals( "register" ) ){
+			CertVo vo = CertVo.deserialize( body );
+
+			try {
+				service.register( request, vo );
+				entities.put( "redirect", "/cert" );
+				entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+
+				certAuditService.insertAudit( request, vo );
+				webAuditService.insertAudit( request );
+			} catch ( Exception e ) {
+				e.printStackTrace();
+				certAuditService.insertAudit( request, vo, e );
+				throw e;
+			}
+
+			return entity;
+		} else {
+			throw new IllegalArgumentException( "operation is null." );
+		}
+	}
+
+	private ResponseEntity<?> uploadFile( ResponseEntity<?> entity, Map<String, Object> entities, JSONObject body ) throws CertificateException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CertPathBuilderException, JSONException {
+
+		service.verifyCertificate( DatatypeConverter.parseBase64Binary( body.getString( "data" ) ) );
+		entities.put( "status", "success" );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		return entity;
 	}
-	
-	@PostMapping("upload")
-	public ResponseEntity<?> uploadFile( HttpServletRequest request ) throws CertificateException, IOException, NoSuchAlgorithmException, NoSuchProviderException, InvalidAlgorithmParameterException, CertPathBuilderException, JSONException{
+
+	@PostMapping("{certId}")
+	public ResponseEntity<?> downloadCertAndUpload( @PathVariable("certId") int certId, HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, CertificateException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, KeyStoreException, IOException, NoSuchProviderException, CertPathBuilderException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
-		JSONObject jObj = CaUtils.getJSONObject( request );
-		
-		service.verifyCertificate( 
-				DatatypeConverter.parseBase64Binary( 
-						jObj.getString( "data" ) 
-				)
-		);
-		entities.put( "status", "success" ); 
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
+		JSONObject body = (JSONObject) request.getAttribute( "body" );
+
+		if ( body.has( "oper" ) && body.getString( "oper" ).equals( "download" ) ) {
+			entities.put( "fileB64", service.downloadCert( request, certId ) );
+			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		}
+
 		return entity;
 	}
 }

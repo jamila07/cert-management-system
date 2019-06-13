@@ -29,6 +29,7 @@ public class LoginService {
 		HttpSession session = request.getSession();
 		
 		ObjectMapper mapper = new ObjectMapper();
+		// 여기 확인
 		UserVo requestedVo = mapper.readValue( request.getAttribute( "body" ).toString(), UserVo.class );
 		
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -39,9 +40,9 @@ public class LoginService {
 			session.setAttribute( LoginConstants.SESSION_ID, selectedVo.getId() );
 			session.setAttribute( LoginConstants.SESSION_NAME, selectedVo.getName() );
 			session.setAttribute( LoginConstants.SESSION_JOBLEVEL, selectedVo.getJobLevel() );
-			session.setAttribute( LoginConstants.SESSION_JOBLEVEL, selectedVo.getDepartTeam() );
-			session.setAttribute( LoginConstants.SESSION_TIME, new Date().getTime() );
+			session.setAttribute( LoginConstants.SESSION_DEPART, selectedVo.getDepartTeam() );
 			session.setAttribute( LoginConstants.SESSION_AUTH, selectedVo.getState() );
+			session.setAttribute( LoginConstants.SESSION_TIME, new Date().getTime() );
 			
 			return true;
 		} else {

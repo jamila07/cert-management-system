@@ -41,123 +41,123 @@ public class AdminController extends CommonController {
 	
 	@Inject
 	private WebAuditService webAuditService;
-	
-	@GetMapping("home.do")
+
+	@GetMapping("")
 	public ModelAndView page( HttpServletRequest request ) {
 		ModelAndView mv = new ModelAndView();
-		
+
 		mv.setViewName( "admin/view");
 		webAuditService.insertAudit( request );
 		return mv;
 	}
-	
-	@PostMapping("registerRootCa.do")
+
+	@PostMapping("")
 	public ResponseEntity<?> registerRootCa( HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, IllegalAccessException, NoSuchAlgorithmException, CertificateException, NoSuchProviderException, SignatureException, IOException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
+
 		adminService.registerRootCa( request );
 		entities.put( "status", "success" );
 		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedUserList.do")
+
+	@GetMapping("applied-user")
 	public ResponseEntity<?> showAppliedUserList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
-		
-		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ) );
+		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
+
+		PageMaker pageMaker = super.setPaging( page );
 		List<Map<String, Object>> list = adminService.showAppliedUserList( pageMaker.getCri() );
 		int listCnt = adminService.showAppliedUserListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedUser/{AppliedUserSeqId}")
-	public ResponseEntity<?> registerAppliedUser( @PathVariable("AppliedUserSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+
+	@PostMapping("applied-user/{appliedUserSeqId}")
+	public ResponseEntity<?> registerAppliedUser( @PathVariable("appliedUserSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
+
 		adminService.registerUser( request, seqId );
 		entities.put( "status", "success" );
 		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedGroupList.do")
+
+	@GetMapping("applied-group")
 	public ResponseEntity<?> showAppliedGroupList( HttpServletRequest request, HttpServletResponse response ) {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
-		
-		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ) );
+		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
+
+		PageMaker pageMaker = super.setPaging( page );
 		List<Map<String, Object>> list = adminService.showGroupApplyList( pageMaker.getCri() );
 		int listCnt = adminService.showGroupApplyListCnt();
-		
+
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedGroupSolutionList.do")
+
+	@GetMapping("applied-group/solution")
 	public ResponseEntity<?> showAppliedGroupSolutionList( HttpServletRequest request, HttpServletResponse response ) {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
-		
-		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ) );
+		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
+
+		PageMaker pageMaker = super.setPaging( page );
 		List<Map<String, Object>> list = adminService.showGroupSolutionApplyList( pageMaker.getCri() );
 		int listCnt = adminService.showGroupSolutionApplyListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedGroup/{AppliedGroupSeqId}")
-	public ResponseEntity<?> registerAppliedGroup( @PathVariable("AppliedGroupSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+
+	@PostMapping("applied-group/{appliedGroupSeqId}")
+	public ResponseEntity<?> registerAppliedGroup( @PathVariable("appliedGroupSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
+
 		adminService.registerGroup( request, seqId );
 		entities.put( "status", "success" );
 		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("appliedSolution/{AppliedSolutionSeqId}")
-	public ResponseEntity<?> registerAppliedSolution( @PathVariable("AppliedSolutionSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+
+	@PostMapping("applied-group/{groupId}/solution/{appliedSolutionSeqId}")
+	public ResponseEntity<?> registerAppliedSolution( @PathVariable("appliedSolutionSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		
+
 		adminService.registerSolution( request, seqId );
 		entities.put( "status", "success" );
 		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
-		
+
 		webAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
 }

@@ -3,10 +3,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core"%>
 <%@ include file="/WEB-INF/views/cert/plugin.jsp"%>
 <%@ include file="/WEB-INF/views/common/top.jsp"%>
+<input type="hidden" id="userId"value="<%= session.getAttribute( "sessionId" ) %>" />
 	<h2>인증서 발급</h2>
-	<form name="certForm" id="certForm" action="/cert/register.do" method="post">
+	<form name="certForm" id="certForm" action="/cert" method="post">
 		<input type="hidden" name="type" value="2"/>
-		그룹 : <select name="groupName" id="groupName">
+		그룹 : <select name="groupId" id="groupId">
 			<!-- AJAX Load -->
 			<option value=""></option>
 		</select><br>
@@ -19,7 +20,7 @@
 		시(구): <input type="text" name="citeProvince" />	 <br>
 		현장 도메인 : <input type="text" name="citeDomain" /> <br>
 		설명 : <input type="text" name="description" /> <br>
-		<a href="javascript:;" onclick="submitData('certForm')">
+		<a href="javascript:;" onclick="certFormSubmit('certForm')">
 			<span>고고</span>
 		</a>
 		
@@ -66,7 +67,8 @@
 			<br><br>
 			<div id="keyPairDv">
 				<input type="radio" name="keyPairExpType" value="1" checked >PKCS12
-				<input type="radio" name="keyPairExpType" value="2"> PEM <br>
+				<input type="radio" name="keyPairExpType" value="2"> PEM
+				<input type="radio" name="keyPairExpType" value="3"> JKS <br>
 				PIN : <input type="password" id="keyPairPin"><br>
 				PIN 확인 : <input type="password" id="keyPairPinChk"><br>
 				비밀번호 : <input type="password" id="keyPairPw"><br>
@@ -115,6 +117,7 @@
 </style>
 <script>
 $(function(){
+	
 	$(".fileDrop").on("dragenter dragover", function(evenet){
 		event.preventDefault();
 	});
@@ -132,10 +135,11 @@ $(function(){
 				data = data.substring( 39 );
 				
 				var sendData = {
-					"data":data	
+					"data":data,
+					"oper":"verify"
 				};
 				$.ajax({
-					url:'/cert/upload', 
+					url:'/cert', 
 					data:JSON.stringify( sendData ),
 					type:'POST',
 					dataType:'json', 
@@ -153,9 +157,11 @@ $(function(){
 	});
 	
 	$.ajax({ 
-		url: '/cert/showList.do',
-		type: 'POST',
-		dataType: 'json', 
+		url: '/cert',
+		type: 'GET',
+		data: {
+			"page":0
+		},
 		success: function(list) {  
 			
 			$.each(list.data, function(i){
@@ -175,13 +181,13 @@ $(function(){
 	/* Operation List AJAX */
 	var groupList;
 	$.ajax({
-		url:'/group/showJoinedGroup.do',
-		type: 'POST',
+		url:'/user/' + $('#userId').val() +'/applied-groups',
+		type: 'GET',
 		success:function(data) {
 			groupList = data.data;
 			for ( var id in groupList) {
 				for ( var name in groupList[id] ) {
-					$("#groupName").append($('<option>',{
+					$("#groupId").append($('<option>',{
 						value: id,
 						text: name
 					}));
@@ -190,11 +196,11 @@ $(function(){
 		}
 	});
 	
-	$('#groupName').change(function() { 
+	$('#groupId').change(function() { 
 		$('#groupSolutionName').empty();
 		$('#groupSolutionName').val(""); 
 		for ( var id in groupList ) { 
-			if ( id == $('#groupName').val() ) {
+			if ( id == $('#groupId').val() ) {
 				for ( var name in groupList[id] ) {
 					for ( var i=0; i<groupList[id][name].length; i++ ) {
 						$("#groupSolutionName").append($('<option>',{
@@ -230,7 +236,7 @@ $(function(){
 	});
 	
 	$('input[type=radio][name=keyPairExpType]').change(function() {
-		if ( this.value == '1' ) {
+		if ( this.value == '1' || this.value == '3' ) {
 			$('#keyPairPin').prop('disabled', false);
 			$('#keyPairPinChk').prop('disabled', false);
 		} else if ( this.value='2' ) {
@@ -249,22 +255,17 @@ $(function(){
 
 });
 
+function certFormSubmit( form ) {
+	var certFormExtJSON = {
+		"oper":"register"
+	};
+	
+	submitData( form, certFormExtJSON );
+}
+
 function ifNotSelectGroup() {
 	if ( !$('#groupSolutionName').val() ) 
 		alert('그룹을 먼저 선택하세요.'); 
-}
-
-function logout() { 
-	$.ajax({
-		url : '/logout.do',
-		success:function(data) {
-			alert("로그아웃");
-			window.location.href = data.redirect;
-		}, 
-		error: function (xhr, ajaxOptions, thrownError) {
-			alert(xhr.status);
-		}
-	}); 
 }
 
 function certManagingPopOpen( certId ) {
@@ -315,6 +316,7 @@ function downloadCert() {
 	var fExt;
 	
 	if ( $('input[type=radio][name=exportWhat]:checked').val() == 1 ) {
+			
 		if ( $('#keyPairPw').val() != $('#keyPairPwChk').val() ) {
 			alert( '키 비밀번호 다름' );
 			return;
@@ -336,6 +338,8 @@ function downloadCert() {
 			fExt = "p12";
 		else if ( $('input[type=radio][name=keyPairExpType]:checked').val() == 2 )
 			fExt = "pem";
+		else if ( $('input[type=radio][name=keyPairExpType]:checked').val() == 3 )
+			fExt = "jks";
 		
 		console.log( data );
 	 } else if ( $('input[type=radio][name=exportWhat]:checked').val() == 2 ) {
@@ -374,8 +378,10 @@ function downloadCert() {
 		 console.log( data);
 	}
 	
+	data.oper = "download";
+	
 	$.ajax({
-		url: "/cert/cert-download/" + certId,
+		url: "/cert/" + certId,
 		type:'post',
 		dataType: "JSON",
 		data: JSON.stringify( data ),

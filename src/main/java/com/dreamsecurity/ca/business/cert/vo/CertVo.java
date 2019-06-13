@@ -2,6 +2,8 @@ package com.dreamsecurity.ca.business.cert.vo;
 
 import java.util.Date;
 
+import org.json.JSONObject;
+
 import com.dreamsecurity.ca.business.group.vo.GroupVo;
 
 public class CertVo {
@@ -18,19 +20,57 @@ public class CertVo {
 	private int keyId;
 	private int type;
 	private int ouType;
-	
+
 	// Join
 	private KeyVo keyVo;
 	private GroupVo groupVo;
-	
+
 	// JSP TO Controller : JSON
 	private String citeName;
 	private String citeLocality;
 	private String citeProvince;
 	private String citeDomain;
-	private int groupName;
+	private int groupId;
 	private String groupSolutionName;
-	
+
+	public CertVo() {}
+
+	private CertVo( String cd, String cl, String cn, String cp, String d, int gi, String gsn, int t ) {
+		this.citeDomain = cd;
+		this.citeLocality = cl;
+		this.citeName = cn;
+		this.citeProvince = cp;
+		this.description = d;
+		this.groupId = gi;
+		this.groupSolutionName = gsn;
+		this.type = t;
+	}
+
+	public static CertVo deserialize( JSONObject body ) {
+		validation(body, "citeDomain");
+		validation(body, "citeLocality");
+		validation(body, "citeName");
+		validation(body, "citeProvince");
+		validation(body, "description");
+		validation(body, "groupId");
+		validation(body, "groupSolutionName");
+		validation(body, "type");
+
+		return new CertVo( body.getString( "citeDomain"),
+				body.getString( "citeLocality"),
+				body.getString( "citeName"),
+				body.getString( "citeProvince"),
+				body.getString( "description"),
+				body.getInt( "groupId"),
+				body.getString( "groupSolutionName"),
+				body.getInt( "type") );
+	}
+
+	private static boolean validation( JSONObject body, String variable ) {
+		if ( body.has( variable ) ) return true;
+		else throw new IllegalArgumentException( variable + " is null.");
+	}
+
 	public GroupVo getGroupVo() {
 		return groupVo;
 	}
@@ -43,11 +83,11 @@ public class CertVo {
 	public void setGroupSolutionName(String groupSolutionName) {
 		this.groupSolutionName = groupSolutionName;
 	}
-	public int getGroupName() {
-		return groupName;
+	public int getGroupId() {
+		return groupId;
 	}
-	public void setGroupName(int groupName) {
-		this.groupName = groupName;
+	public void setGroupId(int groupId) {
+		this.groupId = groupId;
 	}
 	public String getCiteLocality() {
 		return citeLocality;

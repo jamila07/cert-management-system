@@ -1,5 +1,6 @@
 package com.dreamsecurity.ca.framework.utils;
 
+import java.io.ByteArrayOutputStream;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -61,32 +62,43 @@ public class KeyStoreUtil {
 	private static KeyStoreUtil loadKeyStore( char[] password, String keyStorePath, String type, Provider provider ) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
 		KeyStore keyStore;
 
+			
+		
 		if ( provider != null ) {
 			keyStore = KeyStore.getInstance( type, provider );			
 		} else {
 			keyStore = KeyStore.getInstance( type );
 		}
 
-		InputStream keyStoreData = null;
 
-		try {
-			keyStoreData = new FileInputStream( keyStorePath );
-
-			keyStore.load( keyStoreData, password );
-		} finally {
-			keyStoreData.close();
+		if ( password == null && keyStorePath == null ) {
+			keyStore.load( null, null );
+			
+			return new KeyStoreUtil( keyStore );
+		} else {
+			
+			InputStream keyStoreData = null;
+	
+			try {
+				keyStoreData = new FileInputStream( keyStorePath );
+	
+				keyStore.load( keyStoreData, password );
+			} finally {
+				keyStoreData.close();
+			}
+	
+			return new KeyStoreUtil( keyStore );
+			
 		}
-
-		return new KeyStoreUtil( keyStore );
 	}
 
-	private KeyStore.PrivateKeyEntry getPrivateKeyEntry( char[] password, String alias ) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
+	private PrivateKeyEntry getPrivateKeyEntry( char[] password, String alias ) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
 		KeyStore.ProtectionParameter enrtyPassword = new KeyStore.PasswordProtection( password );
 
 		return (PrivateKeyEntry) keyStore.getEntry( alias, enrtyPassword );
 	}
 
-	private KeyStore.SecretKeyEntry getSecretKeyEntry( char[] password, String alias ) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
+	private SecretKeyEntry getSecretKeyEntry( char[] password, String alias ) throws NoSuchAlgorithmException, UnrecoverableEntryException, KeyStoreException {
 		KeyStore.ProtectionParameter enrtyPassword = new KeyStore.PasswordProtection( password );
 
 		return (SecretKeyEntry) keyStore.getEntry( alias, enrtyPassword );
@@ -131,7 +143,7 @@ public class KeyStoreUtil {
 	}
 
 	public void setSecretKey( SecretKey key, String alias, char[] password ) throws KeyStoreException {
-		KeyStore.SecretKeyEntry secretKeyEntry = new KeyStore.SecretKeyEntry( key );
+		SecretKeyEntry secretKeyEntry = new SecretKeyEntry( key );
 
 		KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection( password );
 
@@ -151,7 +163,7 @@ public class KeyStoreUtil {
 
 	public void setKeyPair( KeyPair keyPair, Certificate[] certChain, String alias, char[] password ) throws KeyStoreException, CertificateException {
 
-		KeyStore.PrivateKeyEntry privateKeyEntry = new KeyStore.PrivateKeyEntry( keyPair.getPrivate(), certChain );
+		PrivateKeyEntry privateKeyEntry = new PrivateKeyEntry( keyPair.getPrivate(), certChain );
 
 		KeyStore.ProtectionParameter entryPassword = new KeyStore.PasswordProtection( password );
 
@@ -169,5 +181,18 @@ public class KeyStoreUtil {
 			keyStoreOutputStream.close();
 		}
 	}	
+	
+	public byte[] convertKeyStoreToByteArray( char[] password ) throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException {
+		ByteArrayOutputStream os = null;
+		
+		try {
+			os = new ByteArrayOutputStream();
+			 keyStore.store( os, password ); 
+		} finally {
+			os.close();
+		}
+		
+		return os.toByteArray();
+	}
 }
 

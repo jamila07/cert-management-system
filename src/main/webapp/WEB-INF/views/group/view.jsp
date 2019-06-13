@@ -5,7 +5,7 @@
 <%@ include file="/WEB-INF/views/common/top.jsp"%>
 
 	<h2>그룹생성</h2>
-	<form name="groupForm" id="groupForm" action="/group/register.do" method="post">
+	<form name="groupForm" id="groupForm" action="/group" method="post">
 		그룹이름 : <input type="text" name="name"/> <br>
 		그룹 대체 이름 : <input type="text" name="altName"/> <br>
 		솔루션 이름 : <input type="text" name="groupSolutionName" /><br>
@@ -31,13 +31,11 @@
 	<div class="pop-layer" id="viewPop">
 		<p style="line-height:25px; color:#666;">
 			<h2>솔루션 추가 신청</h2>
-				<form name="groupSolutionAddForm" id="groupSolutionAddForm" action="/group/applyGroupSolution.do" method="post">
 					<input type="text" name="solutionName" />
 					<input type="hidden" name="groupId" /><!--  init value when pop open -->
-					<a href="javascript:;" onclick="submitData('groupSolutionAddForm')">
+					<a href="javascript:;" onclick="applyGroupSolution()">
 						<span>고고</span>
 					</a>
-				</form>
 			<h2> 그룹원 가입 신청 </h2>
 				<table id="groupApplyTable" border=1>
 					<tr>
@@ -80,15 +78,13 @@ $(function(){
 });
 
 function goGroupList( page ) {
-	var sendData = {
-			"page": page
-	};
 	
 	$.ajax({
-		url: '/group/showGroupList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
-		dataType: 'json',
+		url: '/group',
+		type: 'GET',
+		data: {
+			"page": page
+		},
 		success: function(list) {
 			var i =0;
 			var j =0;
@@ -127,16 +123,14 @@ function goGroupList( page ) {
 }
 
 function goGroupApplyList( page ) {
-	var sendData = {
-		"page": page,
-		"groupId":groupId
-	};
-	
+
 	$.ajax({
-		url: '/group/showGroupApplyList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
-		dataType: 'json',
+		url: '/group/' + groupId + '/user',
+		type: 'GET',
+		data: {
+			"page":page,
+			"oper":"requested"
+		},
 		success: function(list) {
 			var i =0;
 			var j =0;
@@ -173,17 +167,30 @@ function goGroupApplyList( page ) {
 	});
 }
 
-function approveAppliedUser( id ) {
-	
+function applyGroupSolution() {
 	var sendData = {
-		"groupId":groupId	
-	};
+		"solutionName": $("input[name='solutionName']").val()
+	}
 	
 	$.ajax({
-		url: '/group/appliedUser/' + id,
+		url: '/group/' + groupId + '/solution',
 		type: 'POST',
-		data: JSON.stringify(sendData),
 		dataType: 'json',
+		contentType: 'application/json',
+		data: JSON.stringify(sendData),
+		success: function(list) {
+			alert("성공");
+			removePopData();
+			showUserGroup();
+		}
+	});
+}
+
+function approveAppliedUser( id ) {
+	
+	$.ajax({
+		url: '/group/' + groupId + '/user/' + id,
+		type: 'POST',
 		success: function(list) {
 			reloadTable( $("#groupApplyTable tr").length, "groupApplyTable", "goGroupApplyList" );
 			alert( '등록 성공');
@@ -193,18 +200,6 @@ function approveAppliedUser( id ) {
 			alert(xhr.status);
 		}
 	});
-}
-function logout() { 
-	$.ajax({
-		url : '/logout.do',
-		success:function(data) {
-			alert("로그아웃");
-			window.location.href = data.redirect;
-		}, 
-		error: function (xhr, ajaxOptions, thrownError) {
-			alert(xhr.status);
-		}
-	}); 
 }
 
 function popOpen() {
@@ -227,16 +222,10 @@ function removePopData() {
 }
 
 function addUserToGroup() {
-	var sendData = {
-			"groupId": groupId
-		};
-		
 	$.ajax({
-		url: '/group/addUserToGroup.do',
+		url: '/group/' + groupId + '/user',
 		type: 'POST',
-		dataType: 'json',
 		contentType: 'application/json',
-		data: JSON.stringify(sendData),
 		success: function(list) {
 			alert("성공");
 			removePopData();
@@ -246,35 +235,27 @@ function addUserToGroup() {
 }
 
 function removeUserToGroup() {
-	var sendData = {
-			"groupId": groupId
-		};
-		
 	$.ajax({
-		url: '/group/removeUserToGroup.do',
-		type: 'POST',
+		url: '/group/' + groupId + '/user/' + userId,
+		type: 'DELETE',
 		dataType: 'json',
-		contentType: 'application/json',
-		data: JSON.stringify(sendData),
 		success: function(list) {
 			alert("성공");
 			removePopData();
 			showUserGroup();
 		}
 	});
-}
+} 
 
 function showUserGroup() {
-	var sendData = {
-		"groupId": groupId
-	};
-	
+	var page = 10;
 	$.ajax({
-		url: '/group/showUserGroupList.do',
-		type: 'POST',
-		dataType: 'json',
-		contentType: 'application/json',
-		data: JSON.stringify(sendData),
+		url: '/group/' + groupId + '/user',
+		type: 'GET',
+		data: {
+			"page":page,
+			"oper":"registered"
+		},
 		success: function(list) {
 			
 			$.each(list.data, function(i){

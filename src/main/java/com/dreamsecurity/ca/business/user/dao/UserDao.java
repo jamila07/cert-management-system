@@ -10,6 +10,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.springframework.stereotype.Repository;
 
 import com.dreamsecurity.ca.business.common.domain.Criteria;
+import com.dreamsecurity.ca.business.group.vo.GroupVo;
 import com.dreamsecurity.ca.business.user.vo.AppliedUserInfoVo;
 import com.dreamsecurity.ca.business.user.vo.UserVo;
 

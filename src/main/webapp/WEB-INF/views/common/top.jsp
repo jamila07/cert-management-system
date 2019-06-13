@@ -14,22 +14,22 @@
 	<div class="dropdown">
 		<button class="dropbtn">인증서</button>
 		<div class="dropdown-content">
-			<a href="/cert/home.do">인증서 현황</a>
+			<a href="/cert">인증서 현황</a>
 		</div>
 	</div><!-- 
  --><div class="dropdown">
 		<button class="dropbtn">그룹</button>
 		<div class="dropdown-content" >
-			<a href="/group/home.do">그룹 현황</a> 
+			<a href="/group">그룹 현황</a> 
 		</div>
 	</div><!-- 
  --><div class="dropdown">
 		<button class="dropbtn">관리자</button>
 		<div class="dropdown-content" >
-			<a href="/admin/home.do">신청 현황</a>
-			<a href="/admin/home.do">인증서 현황</a>
-			<a href="/admin/home.do">그룹 현황</a> 
-			<a href="/audit/home.do">감사로그</a>
+			<a href="/admin">신청 현황</a>
+			<a href="/admin">인증서 현황</a>
+			<a href="/admin">그룹 현황</a> 
+			<a href="/audit">감사로그</a>
 			<a href="/user/home.do">사용자 현황(권한X)</a>
 		</div>
 	</div>
@@ -51,7 +51,7 @@
 <script>
 function logout() { 
 	$.ajax({
-		url : '/logout.do',
+		url : '/logout',
 		success:function(data) {
 			alert("로그아웃");
 			window.location.href = data.redirect;

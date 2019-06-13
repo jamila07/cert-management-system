@@ -7,7 +7,7 @@ import com.dreamsecurity.ca.business.cert.vo.CertVo;
 public class CertDto {
 	private CertVo eeCertVo;
 	private X509Certificate[] certChain;
-	
+
 	public CertVo getEeCertVo() {
 		return eeCertVo;
 	}
@@ -19,5 +19,5 @@ public class CertDto {
 	}
 	public void setCertChain(X509Certificate[] certChain) {
 		this.certChain = certChain;
-	}	
+	}
 }

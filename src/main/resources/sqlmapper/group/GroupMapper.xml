@@ -10,7 +10,7 @@
 		<result column="GROUP_ID" property="groupId"/>
 		<result column="SOLUTION_NAME" property="solutionName"/>
 		<result column="CREATE_DATE" property="createDate"/>
-		<result column="CREATOR" property="creator"/>
+		<result column="SOLUTION_CREATOR" property="creator"/>
 		<result column="STATE" property="state"/>
 	</resultMap>
 
@@ -288,19 +288,6 @@
 		)
 	</insert>
 	
-	<select id="selectJoinedGroupList" parameterType="String" resultMap="groupVoMap">
-		select
-			gi.id, 
-            gi.name,
-            gis.solution_name
-		from
-			user_group ug
-		inner join group_info gi on gi.id = ug.group_id
-        inner join group_info_solution gis on gi.id = gis.group_id
-		where 
-			user_id = #{val} and ug.state = 1 and gi.state = 0 and gis.state = 0
-	</select>
-	
 	<select id="selectUserSolutionJoinUsingGroupId" parameterType="groupVo" resultMap="groupVoMap" >
 		select
 			gi.id,
@@ -314,6 +301,31 @@
 		inner join group_info_solution uis on gi.id = uis.group_id
 		where
 			gi.id = #{id}
+	</select>
+	
+	<select id="selectGroupSolutionJoinGroupUsingSolId" parameterType="groupSolutionVo" resultMap="groupVoMap" >
+		select 
+			gis.solution_name,
+    		gi.id,
+    		gis.creator SOLUTION_CREATOR
+		from 
+			group_info gi
+		inner join group_info_solution gis on gi.id = gis.group_id
+		where 
+			gis.seq_id = #{seqId}
+	</select>
+	
+	<select id="selectJoinedGroupList" parameterType="String" resultMap="groupVoMap">
+		select
+			gi.id, 
+            gi.name,
+            gis.solution_name
+		from
+			user_group ug
+		inner join group_info gi on gi.id = ug.group_id
+        inner join group_info_solution gis on gi.id = gis.group_id
+		where 
+			user_id = #{val} and ug.state = 1 and gi.state = 0 and gis.state = 0
 	</select>
 	
 	<delete id="deleteGroupUsingGroupId" parameterType="groupVo" >

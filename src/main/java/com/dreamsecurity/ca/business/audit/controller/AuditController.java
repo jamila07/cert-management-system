@@ -12,7 +12,6 @@ import org.json.JSONObject;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
@@ -25,55 +24,57 @@ import com.dreamsecurity.ca.business.common.mvc.controller.CommonController;
 @RestController
 @RequestMapping("/audit")
 public class AuditController extends CommonController {
-	
+
 	@Inject
 	private CertAuditService cAuditService;
-	
-	@Inject 
+
+	@Inject
 	private WebAuditService wAuditService;
-	
-	@GetMapping("home.do")
+
+	@GetMapping("")
 	public ModelAndView page( HttpServletRequest request ) {
 		ModelAndView mv = new ModelAndView();
-		
+
 		mv.setViewName( "audit/view");
 		wAuditService.insertAudit( request );
 		return mv;
 	}
-	
-	@PostMapping("showWebAuditList.do")
+
+	@GetMapping("web")
 	public ResponseEntity<?> showWebAuditList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
-		
-		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ) );
+
+		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
+
+		PageMaker pageMaker = super.setPaging( page );
 		List<Map<String, Object>> list = wAuditService.showList( request, pageMaker.getCri() );
 		int listCnt = wAuditService.showListCnt();
-		
+
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		wAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
-	
-	@PostMapping("showCertAuditList.do")
+
+	@GetMapping("cert")
 	public ResponseEntity<?> showCertAuditList( HttpServletRequest request, HttpServletResponse response ) {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
-		
-		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ) );
+
+		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
+
+		PageMaker pageMaker = super.setPaging( page );
 		List<Map<String, Object>> list = cAuditService.showList( request, pageMaker.getCri() );
 		int listCnt = cAuditService.showListCnt();
-		
+
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
 		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
-		
+
 		wAuditService.insertAudit( request );
-		
+
 		return entity;
 	}
 }

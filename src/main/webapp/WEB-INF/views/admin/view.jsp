@@ -60,15 +60,18 @@ $(function(){
 	goAppliedGroupSolutionList(1);
 });
 
+// appliedUserList.do
 function goAppliedUserList( page ) {
 	var sendData = {
 		"page": page
 	};
 	
 	$.ajax({
-		url: '/admin/appliedUserList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
+		url: '/admin/applied-user',
+		type: 'GET',
+		data: {
+			"page":page
+		},
 		dataType: 'json',
 		success: function(list) { 
 			var i =0;
@@ -85,7 +88,10 @@ function goAppliedUserList( page ) {
 								"<td>" + list.data[i].joblevel + "</td>" +
 								"<td>" + list.data[i].reqtype + "</td>" +
 								"<td>" + list.data[i].adddate + "</td>" + 
-								"<td><a href=javascript:; onclick=registerAppliedUser('" + list.data[i].seqid + "')>승인</a></td>" + 
+								"<td>" + 
+									"<a href=javascript:; onclick=registerAppliedUser('" + list.data[i].seqid + "')>승인</a>&nbsp;"+
+									"<a href=javascript:; onclick=refuseAppliedUser('" + list.data[i].seqid + "')>거절</a>" +
+								"</td>" +  
 							"</tr>");
 					} else {  
 						$("#userApplyTable").find('td').eq(j++).text( list.data[i].seqid );
@@ -109,14 +115,13 @@ function goAppliedUserList( page ) {
 }
 
 function goAppliedGroupSolutionList( page ) {
-	var sendData = {
-			"page": page
-		};
-		
+
 	$.ajax({
-		url: '/admin/appliedGroupSolutionList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
+		url: '/admin/applied-group/solution',
+		type: 'GET',
+		data: {
+			"page":page
+		},
 		dataType: 'json',
 		success: function(list) { 
 			var i =0;
@@ -132,8 +137,8 @@ function goAppliedGroupSolutionList( page ) {
 								"<td>" + list.data[i].createdate + "</td>" +
 								"<td>" + list.data[i].creator + "</td>" +
 								"<td>" + list.data[i].solutionname + "</td>" +
-								"<td><a href=javascript:; onclick=registerAppliedSolution('" + list.data[i].seqid + "')>승인</a></td>" + 
-							"</tr>");
+								"<td><a href=javascript:; onclick=registerAppliedSolution(" + list.data[i].seqid + "," + list.data[i].groupid + ")>승인</a></td>" +
+							"</tr>"); 
 					} else {  
 						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].seqid );
 						$("#groupSolutionApplyTable").find('td').eq(j++).text( list.data[i].name );
@@ -156,14 +161,13 @@ function goAppliedGroupSolutionList( page ) {
 
 
 function goAppliedGroupList( page ) {
-	var sendData = {
-			"page": page
-		};
 		
 	$.ajax({
-		url: '/admin/appliedGroupList.do',
-		type: 'POST',
-		data: JSON.stringify(sendData),
+		url: '/admin/applied-group',
+		type: 'GET',
+		data: {
+			"page":page
+		},
 		dataType: 'json',
 		success: function(list) { 
 			var i =0;
@@ -203,11 +207,26 @@ function goAppliedGroupList( page ) {
 
 function registerAppliedUser( id ) {
 	$.ajax({
-		url: '/admin/appliedUser/' + id,
+		url: '/admin/applied-user/' + id,
 		type: 'POST',
 		success: function(list) {
 			reloadTable( $("#userApplyTable tr").length, "userApplyTable", "goAppliedUserList" );
 			alert( '등록 성공');
+		},
+		error: function (xhr, ajaxOptions, thrownError) {
+			reloadTable( $("#userApplyTable tr").length, "userApplyTable", "goAppliedUserList" );
+			alert(xhr.status);
+		}
+	});
+}
+
+function refuseAppliedUser( id ) {
+	$.ajax({
+		url: '/admin/applied-user/' + id,
+		type: 'DELETE',
+		success: function(list) {
+			reloadTable( $("#userApplyTable tr").length, "userApplyTable", "goAppliedUserList" );
+			alert( '거절 성공');
 		},
 		error: function (xhr, ajaxOptions, thrownError) {
 			reloadTable( $("#userApplyTable tr").length, "userApplyTable", "goAppliedUserList" );
@@ -218,7 +237,7 @@ function registerAppliedUser( id ) {
 
 function registerAppliedGroup( id ) {
 	$.ajax({
-		url: '/admin/appliedGroup/' + id,
+		url: '/admin/applied-group/' + id,
 		type: 'POST',
 		success: function(list) {
 			reloadTable( $("#groupApplyTable tr").length, "groupApplyTable", "goAppliedGroupList" );
@@ -231,9 +250,9 @@ function registerAppliedGroup( id ) {
 	});
 }
 
-function registerAppliedSolution( id ) {
+function registerAppliedSolution( solutionId, groupId ) {
 	$.ajax({
-		url: '/admin/appliedSolution/' + id,
+		url: '/admin/applied-group/' + groupId + '/solution/' + solutionId,
 		type: 'POST',
 		success: function(list) {
 			reloadTable( $("#groupSolutionApplyTable tr").length, "groupSolutionApplyTable", "goAppliedGroupSolutionList" );
@@ -248,7 +267,7 @@ function registerAppliedSolution( id ) {
 
 function registerRootCa() {
 	$.ajax({
-		url: '/admin/registerRootCa.do',
+		url: '/admin',
 		type: 'POST',
 		success: function( data ) {
 			alert( '등록 성공');

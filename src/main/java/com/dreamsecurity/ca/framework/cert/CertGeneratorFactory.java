@@ -62,7 +62,7 @@ public class CertGeneratorFactory {
 		}
 	}
 	
-	public static CertGeneratorFactory.Builder building() {
+	public static Builder building() {
 		return new Builder();
 	}
 	

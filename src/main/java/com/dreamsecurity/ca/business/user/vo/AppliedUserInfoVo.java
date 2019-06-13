@@ -4,38 +4,73 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.fasterxml.jackson.annotation.JsonAnySetter;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import org.json.JSONObject;
 
 public class AppliedUserInfoVo {
-	@JsonInclude(Include.NON_NULL)
 	private int seqId;
-	
 	private String userId;
 	private String password;
 	private String name;
-	@JsonInclude(Include.NON_NULL)
 	private Date addDate;
 	private String departTeam;
 	private String jobLevel;
 	private String eMail;
-	@JsonInclude(Include.NON_NULL)
 	private boolean groupCreator;
-	@JsonInclude(Include.NON_NULL)
 	private int groupId;
-	@JsonInclude(Include.NON_NULL)
 	private String groupName;
-	@JsonInclude(Include.NON_NULL)
 	private String solutionName;
-	@JsonInclude(Include.NON_NULL)
 	private String groupDescription;
-	@JsonInclude(Include.NON_NULL)
 	private int state;
 	
 	private Map<String, Object> dynamicParam = new HashMap<String, Object>();
 	
-	@JsonAnySetter
+	public AppliedUserInfoVo() {}
+	
+	private AppliedUserInfoVo( String dt, String em, String jl, String n, String p, String ui, boolean gc, int gi, String gd, String sn, String gn ) {
+		this.departTeam = dt;
+		this.eMail = em;
+		this.jobLevel = jl;
+		this.name = n;
+		this.password = p;
+		this.userId = ui;
+		this.groupCreator = gc;
+		this.groupId = gi;
+		this.groupDescription = gd;
+		this.solutionName = sn;
+		this.groupName = gn;
+	}
+	
+	public static AppliedUserInfoVo deserialize( JSONObject body ) {
+		validation(body, "departTeam");
+		validation(body, "eMail");
+		validation(body, "groupCreator");
+		validation(body, "jobLevel");
+		validation(body, "name");
+		validation(body, "password");
+		validation(body, "userId");
+		
+		boolean groupCrator = false;;
+		if ( body.getString( "groupCreator" ).equals( "true" ) ) groupCrator = true;
+		
+		return new AppliedUserInfoVo( body.getString( "departTeam" ),
+				body.getString( "eMail" ), 
+				body.getString( "jobLevel" ),
+				body.getString( "name" ),
+				body.getString( "password" ),
+				body.getString( "userId" ),
+				groupCrator,
+				body.has( "groupId" ) ? body.getInt( "groupId" ) : 0,
+				body.has( "groupDescription") ? body.getString( "groupDescription" ) : null,
+				body.has( "solutionName") ? body.getString( "solutionName" ) : null,
+				body.has( "groupName" ) ? body.getString( "groupName" ) : null );
+				
+	}
+	
+	private static boolean validation( JSONObject body, String variable ) {
+		if ( body.has( variable ) ) return true;
+		else throw new IllegalArgumentException( variable + " is null.");
+	}
+	
 	public void setDynamicParam( String key, Object value ) {
 		dynamicParam.put( key, value );
 	}

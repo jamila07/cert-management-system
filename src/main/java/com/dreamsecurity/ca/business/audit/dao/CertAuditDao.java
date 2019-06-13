@@ -14,24 +14,24 @@ import com.dreamsecurity.ca.business.common.domain.Criteria;
 
 @Repository
 public class CertAuditDao {
-	
+
 	@Inject
 	private SqlSession session;
-	
+
 	private static String namespace="com.dreamsecurity.mapper.audit";
-	
+
 	public List<Map<String, Object>> selectCertAduitList( Criteria cri ) {
 		Map<String, Object> paramMap = new HashMap<>();
-		
+
 		paramMap.put( "cri", cri );
-		
+
 		return session.selectList( namespace + ".selectCertAduitList", paramMap );
 	}
-	
+
 	public int selectCertAuditListCnt() {
-	 	return session.selectOne( namespace + ".selectCertAuditListCnt" );
+		return session.selectOne( namespace + ".selectCertAuditListCnt" );
 	}
-	
+
 	public void insertCertAudit( CertAuditVo vo ) {
 		session.insert( namespace + ".insertCertAudit", vo );
 	}

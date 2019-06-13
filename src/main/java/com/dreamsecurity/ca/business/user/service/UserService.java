@@ -3,24 +3,28 @@ package com.dreamsecurity.ca.business.user.service;
 import java.io.IOException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import com.dreamsecurity.ca.business.common.CommonConstants;
+import com.dreamsecurity.ca.business.group.dao.GroupDao;
+import com.dreamsecurity.ca.business.group.vo.GroupSolutionVo;
+import com.dreamsecurity.ca.business.group.vo.GroupVo;
 import com.dreamsecurity.ca.business.user.dao.UserDao;
 import com.dreamsecurity.ca.business.user.vo.AppliedUserInfoVo;
 import com.dreamsecurity.ca.business.user.vo.UserVo;
 import com.dreamsecurity.ca.framework.utils.CaUtils;
 import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Service
 public class UserService {
@@ -28,34 +32,19 @@ public class UserService {
 	@Resource
 	private UserDao userDao;
 	
-	private ObjectMapper objectMapper;
-	
-	@Autowired
-	private UserService( ObjectMapper objectMapper ) {
-		this.objectMapper = objectMapper;
-	}
-	
+	@Resource
+	private GroupDao groupDao;
+		
 	public void registerAppliedUser( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {
-		ObjectMapper mapper = new ObjectMapper();
-		AppliedUserInfoVo vo = mapper.readValue( request.getReader(), AppliedUserInfoVo.class );
+		JSONObject body = (JSONObject) request.getAttribute( "body" );
+		AppliedUserInfoVo vo = AppliedUserInfoVo.deserialize( body ); 
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-		
-		
 		
 		vo.setAddDate( new Date() );
 		vo.setState( 0 );
 		vo.setPassword( CaUtils.convertByteArrayToHexString( messageDigest.digest( vo.getPassword().getBytes() ) ) );
 
 		userDao.insertAplliedUser( vo );
-	}
-	
-	public void rejectAppliedUser( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException {
-		AppliedUserInfoVo vo = objectMapper.readValue( request.getReader(), AppliedUserInfoVo.class );
-		
-		vo.setSeqId( vo.getSeqId() ); 
-		vo.setState( 0 );
-		
-		userDao.updateAppliedUserState( vo );
 	}
 	
 	public UserVo selectOneUser( UserVo vo ) {
@@ -81,5 +70,33 @@ public class UserService {
 		if ( userDao.selectAppliedUserOne4ChkOverlap( vo ) != null ) return false;
 		
 		return true;
+	}
+	
+	public Map<Integer, Map<String, List<String>>> showJoinedGroup( HttpServletRequest request, String userId ) {
+		List<GroupVo> groupVoList = groupDao.selectJoinedGroupList( userId );
+		
+//		"data":{
+//			1:{	"dev2":["magickms","magicdb"]},
+//			2:{ "dev1":["sso", "tsa"]}
+//		}
+		Map<Integer, Map<String, List<String>>> groupInfo = new HashMap<>();
+		Map<String, List<String>> solutionInfo;
+		for ( GroupVo groupVo : groupVoList ) {
+			solutionInfo = new HashMap<>();
+			
+			for ( GroupSolutionVo groupSoltuionVo : groupVo.getGroupSolutionVo() ) {
+				if ( groupInfo.get( groupVo.getId() ) == null ) {
+					List<String> solutionNameList = new ArrayList<>();
+					solutionNameList.add( groupSoltuionVo.getSolutionName() );
+					
+					solutionInfo.put( groupVo.getName(), solutionNameList );
+					groupInfo.put( groupVo.getId(), solutionInfo );
+				} else {
+					groupInfo.get( groupVo.getId() ).get( groupVo.getName() ).add( groupSoltuionVo.getSolutionName() );
+				}
+			}
+		}
+		
+		return groupInfo;
 	}
 }

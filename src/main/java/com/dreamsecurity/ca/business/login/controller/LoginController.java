@@ -34,8 +34,6 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @RestController
 public class LoginController extends CommonController {
 	
-	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
-	
 	@Inject
 	private LoginService service;
 	
@@ -48,9 +46,8 @@ public class LoginController extends CommonController {
 	@GetMapping("/")
 	public ModelAndView page( HttpServletRequest request ) {		
 		ModelAndView mv = new ModelAndView();
-		System.out.println( request.getSession().getId() );
 		if ( request.getSession().getAttribute( LoginConstants.SESSION_ID ) != null ) {
-			mv.setViewName( "redirect:/cert/home.do" );
+			mv.setViewName( "redirect:/cert" );
 			webAuditService.insertAudit( request );
 		} else {
 			mv.setViewName( "/index" );
@@ -59,26 +56,26 @@ public class LoginController extends CommonController {
 		return mv;
 	}
 	
-	@PostMapping("/login.do")
+	@PostMapping("/login")
 	public ResponseEntity<?> login( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
 		
 		ResponseEntity<?> entity;
 		Map<String, Object> entities = new HashMap<String, Object>();
 		
 		if ( service.login( request ) == true ) {
-			entities.put( "redirect", "cert/home.do" );
+			entities.put( "redirect", "cert" );
 			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.CREATED);
 			
 			webAuditService.insertAudit( request );
 		} else {
-			entities.put( "redirect", "/" );
+ 			entities.put( "redirect", "/" );
 			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.BAD_REQUEST);
 		}
 		
 		return entity;
 	}
 	
-	@GetMapping("/logout.do")
+	@GetMapping("/logout")
 	public ResponseEntity<?> logout( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
 		
 		ResponseEntity<?> entity;
@@ -104,7 +101,7 @@ public class LoginController extends CommonController {
 	public ResponseEntity<?> showGroupInfo( HttpServletRequest request, HttpServletResponse response ) {
 		ResponseEntity<?> entity = null;
 		Map<String, Object> entities = new HashMap<String, Object>();
-		JSONObject jObj = new JSONObject( request.getAttribute( "body" ).toString() );
+		JSONObject jObj = (JSONObject) request.getAttribute( "body" );
 		
 		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ), jObj.getInt( "perPageNum" ) );
 		List<Map<String, Object>> list = groupService.showGroupList( request, pageMaker.getCri() );
