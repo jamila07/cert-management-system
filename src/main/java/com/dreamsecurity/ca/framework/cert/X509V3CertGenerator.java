@@ -85,7 +85,14 @@ public abstract class X509V3CertGenerator {
 		if( exts != null ) {
 			info.set( X509CertInfo.EXTENSIONS, exts );
 		}
-		
+
+		// Sign the cert to identify the algorithm that's used.
+		certificate = new X509CertImpl( info );
+		certificate.sign( issuer, algorithm );
+
+		// Update the algorith, and resign.
+		sigAlgId = (AlgorithmId)certificate.get( X509CertImpl.SIG_ALG );
+		info.set( CertificateAlgorithmId.NAME + "." + CertificateAlgorithmId.ALGORITHM, sigAlgId );
 		certificate = new X509CertImpl( info );
 		certificate.sign( issuer, algorithm );
 

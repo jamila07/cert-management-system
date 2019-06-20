@@ -29,7 +29,7 @@ public class CaCertGenerator extends X509V3CertGenerator {
 		KeyUsageExtension keyUsage = new KeyUsageExtension(); 
 
 		keyUsage.set( KeyUsageExtension.KEY_CERTSIGN, true ); 
-//		keyUsage.set( KeyUsageExtension.CRL_SIGN, true ); 
+		keyUsage.set( KeyUsageExtension.DIGITAL_SIGNATURE, true );
 
 		Vector<ObjectIdentifier> keyOid = new Vector<ObjectIdentifier>(); 
         keyOid.add( new ObjectIdentifier( new int[] { 1, 3, 6, 1, 5, 5, 7, 3, 1 }));	// server authentication
@@ -52,9 +52,8 @@ public class CaCertGenerator extends X509V3CertGenerator {
 		exts.set( AuthorityKeyIdentifierExtension.NAME,
 				new AuthorityKeyIdentifierExtension(
 						new KeyIdentifier( getIssuerCert().getPublicKey()),
-						new GeneralNames().add( new GeneralName(
-								new X500Name( getIssuerCert().getSubjectDN().getName() ) ) ),
-						new SerialNumber( getIssuerCert().getSerialNumber())
+						null,
+						null
 						));
 
 		return exts;

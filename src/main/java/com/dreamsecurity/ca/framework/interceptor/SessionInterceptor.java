@@ -65,7 +65,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 			String operId = (String)session.getAttribute( LoginConstants.SESSION_ID );
 			operId = operId.trim();
 			
-			if(operId.equals("") || operId.toLowerCase().equals("null") || operId == null ) {
+			if(operId.equals("") || operId.toLowerCase().equals("null") ) {
 				return false;
 			}
 		}
@@ -76,7 +76,7 @@ public class SessionInterceptor extends HandlerInterceptorAdapter {
 	
 	private boolean isSessionExpired( HttpSession session ) {
 		long currentTime = new Date().getTime();
-		long sessionCreTime = (long)session.getAttribute( LoginConstants.SESSION_TIME );
+		long sessionCreTime = (Long)session.getAttribute( LoginConstants.SESSION_TIME );
 		
 		if ( currentTime > ( sessionTimeOut + sessionCreTime ) ) {
 			return false;

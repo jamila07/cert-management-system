@@ -19,16 +19,22 @@ $.fn.serializeObject = function() {
 }
 
 //submit To ajax Post
-function submitData( form ) {
+function submitData( form, extJSON ) {
 	var defer= $.Deferred();
 	var post_url = $("#"+form).attr("action"); //get form action url
 	var request_method = $("#"+form).attr("method"); //get form GET/POST method
-	var form_data = JSON.stringify( $("#"+form).serializeObject() ); //Encode form elements for submission
+	var form_data =  $("#"+form).serializeObject(); //Encode form elements for submission
+	
+	if ( extJSON != null ) {
+		for(var i in extJSON) {
+			form_data[i] = extJSON[i];
+		}
+	}
 	
 	$.ajax({
 		url : post_url,
 		type: request_method,
-		data : form_data,
+		data : JSON.stringify( form_data ),
 		dataType : 'json',
 		contentType: 'application/json',
 		success:function(data) {

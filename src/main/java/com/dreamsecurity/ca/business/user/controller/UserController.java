@@ -95,7 +95,7 @@ public class UserController {
 			if ( service.chkOverlapUser( userId ) ) entities.put( "data", true );
 			else entities.put( "data", false );
 		} else {
-			throw new IllegalArgumentException( "oper is not chkOverlap." );
+			throw new IllegalArgumentException( "oper is invalid." );
 		}
 		
 		entities.put( "status" , "success" );

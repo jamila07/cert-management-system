@@ -26,7 +26,8 @@ public class RootCertGenerator extends X509V3CertGenerator {
 	public CertificateExtensions generateCertificateExtensions( PublicKey subjectPublickey ) throws IOException {
 
 		KeyUsageExtension keyUsage = new KeyUsageExtension(); 
-		keyUsage.set( KeyUsageExtension.KEY_CERTSIGN, true ); 
+		keyUsage.set( KeyUsageExtension.KEY_CERTSIGN, true );
+		keyUsage.set( KeyUsageExtension.DIGITAL_SIGNATURE, true );
 
 		CertificateExtensions exts = new CertificateExtensions();
 
