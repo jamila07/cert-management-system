@@ -29,7 +29,7 @@
 
 	<!-- listener info start -->
 	<listener>
-		<listener-class>com.dreamsecurity.ca.framework.listener.ContextLoaderListener</listener-class>
+		<listener-class>net.glaso.ca.framework.listener.ContextLoaderListener</listener-class>
 	</listener>
 	<!-- listener info end -->
 
@@ -37,7 +37,7 @@
 	<!-- encodingFilter : UTF-8 -->
 	<filter>
 		<filter-name>CharacterEncodingFilter</filter-name>
-		<filter-class>com.dreamsecurity.ca.framework.filter.CharacterEncodingFilter</filter-class>
+		<filter-class>net.glaso.ca.framework.filter.CharacterEncodingFilter</filter-class>
 		<init-param>
 			<param-name>encoding</param-name>
 			<param-value>UTF-8</param-value>
@@ -52,7 +52,7 @@
 	<!-- parse and save request body filter -->
 	<filter>
 		<filter-name>parsingBodyFilter</filter-name>
-		<filter-class>com.dreamsecurity.ca.framework.filter.ParsingBodyFilter</filter-class>
+		<filter-class>net.glaso.ca.framework.filter.ParsingBodyFilter</filter-class>
 	</filter>
 
 	<filter-mapping>

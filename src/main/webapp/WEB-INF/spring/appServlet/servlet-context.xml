@@ -24,12 +24,12 @@
 		<beans:property name="suffix" value=".jsp" />
 	</beans:bean>
 
-	<context:component-scan base-package="com.dreamsecurity.ca" />
+	<context:component-scan base-package="net.glaso.ca" />
 
 	<!-- =================================================================== -->
 	<!-- WEB Controller DEFINITIONS                                            -->
 	<!-- =================================================================== -->
-	<context:component-scan base-package="com.dreamsecurity" use-default-filters="false">
+	<context:component-scan base-package="net.glaso" use-default-filters="false">
 		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
 	</context:component-scan>
 
@@ -49,7 +49,7 @@
 		<interceptor>
 			<mapping path="/admin/**" />
 			<mapping path="/audit/**" />
-			<beans:bean class="com.dreamsecurity.ca.framework.interceptor.AdminAuthInterceptor"></beans:bean>
+			<beans:bean class="net.glaso.ca.framework.interceptor.AdminAuthInterceptor"></beans:bean>
 		</interceptor>
 
 		<!-- Login Session -->
@@ -61,7 +61,7 @@
 			<mvc:exclude-mapping path="/logout"/>
 			<mvc:exclude-mapping path="/user"/>
 			<mvc:exclude-mapping path="/showGroupInfo.do"/>
-			<beans:bean class="com.dreamsecurity.ca.framework.interceptor.SessionInterceptor"></beans:bean>
+			<beans:bean class="net.glaso.ca.framework.interceptor.SessionInterceptor"></beans:bean>
 		</interceptor>
 	</interceptors>
 </beans:beans>

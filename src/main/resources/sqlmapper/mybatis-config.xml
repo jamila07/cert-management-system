@@ -5,15 +5,15 @@
 <configuration>	
 	<!-- type alias -->
 	<typeAliases>
-		<typeAlias type="com.dreamsecurity.ca.business.user.vo.UserVo" alias="userVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.user.vo.AppliedUserInfoVo" alias="appliedUserInfoVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.cert.vo.CertVo" alias="certVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.cert.vo.KeyVo" alias="keyVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.group.vo.GroupVo" alias="groupVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.group.vo.GroupSolutionVo" alias="groupSolutionVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.group.vo.UserGroupVo" alias="userGroupVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.audit.vo.CertAuditVo" alias="certAuditVo" />
-		<typeAlias type="com.dreamsecurity.ca.business.audit.vo.WebAuditVo" alias="webAuditVo" />
+		<typeAlias type="net.glaso.ca.business.user.vo.UserVo" alias="userVo" />
+		<typeAlias type="net.glaso.ca.business.user.vo.AppliedUserInfoVo" alias="appliedUserInfoVo" />
+		<typeAlias type="net.glaso.ca.business.cert.vo.CertVo" alias="certVo" />
+		<typeAlias type="net.glaso.ca.business.cert.vo.KeyVo" alias="keyVo" />
+		<typeAlias type="net.glaso.ca.business.group.vo.GroupVo" alias="groupVo" />
+		<typeAlias type="net.glaso.ca.business.group.vo.GroupSolutionVo" alias="groupSolutionVo" />
+		<typeAlias type="net.glaso.ca.business.group.vo.UserGroupVo" alias="userGroupVo" />
+		<typeAlias type="net.glaso.ca.business.audit.vo.CertAuditVo" alias="certAuditVo" />
+		<typeAlias type="net.glaso.ca.business.audit.vo.WebAuditVo" alias="webAuditVo" />
 		
 	</typeAliases>
 </configuration>
