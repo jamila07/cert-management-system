@@ -18,7 +18,7 @@ public class CertAuditDao {
 	@Inject
 	private SqlSession session;
 
-	private static String namespace="com.dreamsecurity.mapper.audit";
+	private static String namespace="net.glaso.mapper.audit";
 
 	public List<Map<String, Object>> selectCertAduitList( Criteria cri ) {
 		Map<String, Object> paramMap = new HashMap<>();

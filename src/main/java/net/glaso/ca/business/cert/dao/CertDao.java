@@ -18,8 +18,8 @@ public class CertDao {
 	@Inject
 	private SqlSession session;
 
-	private static String certNamespace="com.dreamsecurity.mapper.cert";
-	private static String keyNamespace="com.dreamsecurity.mapper.key";
+	private static String certNamespace="net.glaso.mapper.cert";
+	private static String keyNamespace="net.glaso.mapper.key";
 
 	public CertVo selectCertOneUsingCertId(CertVo vo ) {
 		return session.selectOne( certNamespace + ".selectCertOneUsingCertId", vo );

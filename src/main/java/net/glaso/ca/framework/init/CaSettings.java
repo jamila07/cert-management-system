@@ -13,7 +13,7 @@ public class CaSettings {
 		
 	private static Map<String, String> configMap = new HashMap<String, String>();
 
-	private final static String caSettingsFName = "ca-settings.properties";
+	private final static String caSettingsFName = "conf/ca-settings.properties";
 	
 	public static void init() throws IOException {
 		InputStream input = null;

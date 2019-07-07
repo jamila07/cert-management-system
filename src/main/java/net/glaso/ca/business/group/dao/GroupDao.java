@@ -20,7 +20,7 @@ public class GroupDao {
 	@Inject
 	private SqlSession session;
 
-	private static String namespace="com.dreamsecurity.mapper.group";
+	private static String namespace="net.glaso.mapper.group";
 
 	public int registerGroup( GroupVo vo ) {
 		return session.insert( namespace + ".registerGroup", vo );

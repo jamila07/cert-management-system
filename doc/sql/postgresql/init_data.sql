@@ -13,7 +13,7 @@ insert into user_info (
     now(),
     'rd2',
     'slave',
-    'ehdvudee@dreamsecurity.com',
+    'ehdvudee@naver.com',
     '72ab994fa2eb426c051ef59cad617750bfe06d7cf6311285ff79c19c32afd236',
     0
 );

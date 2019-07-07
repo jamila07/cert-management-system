@@ -7,7 +7,7 @@ import org.springframework.context.annotation.Configuration;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Configuration
-@ComponentScan(basePackages = "com.dreamsecurity.ca")
+@ComponentScan(basePackages = "net.glaso.ca")
 public class CommonBeanConfig {
 	
 	@Bean

@@ -19,7 +19,7 @@ public class UserDao {
 	@Inject
 	private SqlSession session;
 	
-	private static String namespace="com.dreamsecurity.mapper.user";
+	private static String namespace="net.glaso.mapper.user";
 	
 	public void insertUser( UserVo vo ) {
 		session.insert( namespace + ".insertUser", vo );
