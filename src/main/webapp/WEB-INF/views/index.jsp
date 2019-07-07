@@ -142,8 +142,16 @@ var navi = 5;
 			alert( "아이디 패스워드 공백임" );
 			return;
 		}
-		
-		$("#sha256Pw").val( SHA256( $("#loginToken").val() + SHA256( $("#loginPw").val() ) ) );
+
+		var salt = $("#loginToken").val();
+		var pw = CryptoJS.SHA256( $("#loginPw").val() );
+		var finalPw = CryptoJS.SHA256( CryptoJS.enc.Hex.parse( pw.toString() + salt ) );
+
+		console.log( salt );
+		console.log( pw.toString() );
+		console.log( finalPw.toString() );
+
+		$("#sha256Pw").val( finalPw.toString() );
 		$("#loginPw").val("");
 		
 		submitData( form );

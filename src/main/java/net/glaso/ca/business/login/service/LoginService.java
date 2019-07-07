@@ -8,6 +8,7 @@ import java.util.Date;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
+import javax.xml.bind.DatatypeConverter;
 
 import net.glaso.ca.business.user.dao.UserDao;
 import net.glaso.ca.business.user.vo.UserVo;
@@ -32,11 +33,20 @@ public class LoginService {
 		// 여기 확인
 		UserVo requestedVo = mapper.readValue( request.getAttribute( "body" ).toString(), UserVo.class );
 		
-		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		UserVo selectedVo = userDao.selectOneUser( requestedVo );
-		String computedPw = CaUtils.convertByteArrayToHexString( messageDigest.digest( ( session.getId() + selectedVo.getPassword() ).getBytes() ) );
-		
-		if ( requestedVo.getSha256Pw().equals( computedPw ) ) {
+		MessageDigest md = MessageDigest.getInstance("SHA-256");
+
+		md.update( DatatypeConverter.parseHexBinary( selectedVo.getPassword() ) );
+		md.update( DatatypeConverter.parseHexBinary( session.getId() ) );
+
+		System.out.println( session.getId() );
+		System.out.println( selectedVo.getPassword() );
+
+		String computedPw = CaUtils.convertByteArrayToHexString( md.digest( ));
+
+		System.out.println( computedPw );
+
+		if ( requestedVo.getSha256Pw().toLowerCase().equals( computedPw.toLowerCase() ) ) {
 			session.setAttribute( LoginConstants.SESSION_ID, selectedVo.getId() );
 			session.setAttribute( LoginConstants.SESSION_NAME, selectedVo.getName() );
 			session.setAttribute( LoginConstants.SESSION_JOBLEVEL, selectedVo.getJobLevel() );
