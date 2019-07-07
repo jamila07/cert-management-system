@@ -21,7 +21,7 @@
 <body>
 <div class="box">
 	<div style="text-align: center;">
-		<h3>연구개발2팀 인증서 관리 시스템</h3>
+		<h3>인증서 관리 시스템</h3>
 	</div> 
 	<input type="hidden" name="loginToken" id="loginToken" value="<%= session.getId() %>">
 	<form id="loginForm" name="loginForm" method="post" action="login">
