@@ -1,24 +1,19 @@
 package net.glaso.ca.business.login.service;
 
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import net.glaso.ca.business.login.common.LoginConstants;
+import net.glaso.ca.business.user.dao.UserDao;
+import net.glaso.ca.business.user.vo.UserVo;
+import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 import javax.xml.bind.DatatypeConverter;
-
-import net.glaso.ca.business.user.dao.UserDao;
-import net.glaso.ca.business.user.vo.UserVo;
-import org.springframework.stereotype.Service;
-
-import net.glaso.ca.business.login.common.LoginConstants;
-import net.glaso.ca.framework.utils.CaUtils;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
 
 @Service
 public class LoginService {
@@ -26,7 +21,7 @@ public class LoginService {
 	@Resource
 	private UserDao userDao;
 	
-	public boolean login( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {
+	public boolean login( HttpServletRequest request ) throws IOException, NoSuchAlgorithmException {
 		HttpSession session = request.getSession();
 		
 		ObjectMapper mapper = new ObjectMapper();
@@ -42,7 +37,7 @@ public class LoginService {
 		System.out.println( session.getId() );
 		System.out.println( selectedVo.getPassword() );
 
-		String computedPw = CaUtils.convertByteArrayToHexString( md.digest( ));
+		String computedPw = DatatypeConverter.printHexBinary( md.digest() );
 
 		System.out.println( computedPw );
 

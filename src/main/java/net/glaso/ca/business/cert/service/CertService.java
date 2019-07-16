@@ -1,50 +1,10 @@
 package net.glaso.ca.business.cert.service;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.math.BigInteger;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.KeyPair;
-import java.security.KeyPairGenerator;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
-import java.security.PrivateKey;
-import java.security.SignatureException;
-import java.security.cert.CertPathBuilderException;
-import java.security.cert.CertificateEncodingException;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.InvalidParameterSpecException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.annotation.Resource;
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-import javax.xml.bind.DatatypeConverter;
-
+import net.glaso.ca.business.cert.common.CertConstants;
 import net.glaso.ca.business.cert.dao.CertDao;
+import net.glaso.ca.business.cert.dto.CertDto;
 import net.glaso.ca.business.cert.vo.CertVo;
 import net.glaso.ca.business.cert.vo.KeyVo;
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
-import net.glaso.ca.business.cert.common.CertConstants;
-import net.glaso.ca.business.cert.dto.CertDto;
 import net.glaso.ca.business.common.CommonConstants;
 import net.glaso.ca.business.login.common.LoginConstants;
 import net.glaso.ca.framework.cert.CertGeneratorFactory;
@@ -55,11 +15,28 @@ import net.glaso.ca.framework.init.CaSettings;
 import net.glaso.ca.framework.utils.CaUtils;
 import net.glaso.ca.framework.utils.KeyStoreUtil;
 import net.glaso.ca.framework.utils.PemUtil;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import sun.security.x509.KeyIdentifier;
+
+import javax.annotation.Resource;
+import javax.crypto.BadPaddingException;
+import javax.crypto.IllegalBlockSizeException;
+import javax.crypto.NoSuchPaddingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import javax.xml.bind.DatatypeConverter;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.math.BigInteger;
+import java.security.*;
+import java.security.cert.*;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.InvalidParameterSpecException;
+import java.util.*;
 
 @Service
 public class CertService {
@@ -82,7 +59,7 @@ public class CertService {
 		} else if ( exportWhat == 3 /*PublicKey*/ ) {
 			return DatatypeConverter.printBase64Binary( exportPublicKey( body, certId ) );
 		} else if ( exportWhat == 4 /*CertChain*/ ) {
-			return DatatypeConverter.printBase64Binary( exportCertChain( request, body, certId ) );
+			return DatatypeConverter.printBase64Binary( exportCertChain( body, certId ) );
 		}
 
 		throw new IllegalArgumentException( "exportWhat value is null." );
@@ -183,7 +160,7 @@ public class CertService {
 		return kVo.getPublicKey();
 	}
 
-	private byte[] exportCertChain( HttpServletRequest request, JSONObject body, int certId ) throws CertificateException {
+	private byte[] exportCertChain( JSONObject body, int certId ) throws CertificateException {
 		if ( !body.has( "exportType") || !body.has( "isPem" ) ) throw new IllegalArgumentException( "exportType or isPem is null." );
 
 		CertDto cDto = getCertChain( certId );
@@ -314,8 +291,8 @@ public class CertService {
 		}
 
 		Set<X509Certificate> certChain = new HashSet<>();
-		for ( int i=0; i<rootInterVoList.size(); i++ ) {
-			certChain.add( (X509Certificate) certFactory.generateCertificate( new ByteArrayInputStream( rootInterVoList.get( i ).getFile() ) ) ) ;
+		for ( CertVo vo : rootInterVoList ) {
+			certChain.add( (X509Certificate) certFactory.generateCertificate( new ByteArrayInputStream( vo.getFile() ) ) ) ;
 		}
 
 		KmsTrustManagerFactory.verifyCertificate( eeCert, certChain, false );
@@ -336,18 +313,6 @@ public class CertService {
 		}
 
 		return voMapList;
-	}
-
-	@Deprecated
-	public CertVo mappingObject( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException {
-		ObjectMapper mapper = new ObjectMapper();
-		JSONObject body = null;
-
-		if ( request.getAttribute( "body" ) != null ) {
-			body = (JSONObject)request.getAttribute( "body" );
-		}
-
-		return mapper.readValue( body.toString(), CertVo.class );
 	}
 
 	@Transactional(rollbackFor={Exception.class})

@@ -16,6 +16,8 @@ import java.util.List;
 
 import net.glaso.ca.framework.utils.CaUtils;
 
+import javax.xml.bind.DatatypeConverter;
+
 public class TestDrive {
 	public static void main( String[] args ) throws NoSuchAlgorithmException, InvalidKeyException, CertificateException, NoSuchProviderException, SignatureException, IOException {
 		
@@ -67,15 +69,15 @@ public class TestDrive {
 				.type( UserCertGenerator.class )
 				.build()
 				.generateCertificate();
-		
+
 		System.out.println( "root pub, pri, cert" );
-		System.out.println( CaUtils.convertByteArrayToHexString( rootKeyPair.getPublic().getEncoded() ) );
-		System.out.println( CaUtils.convertByteArrayToHexString( rootKeyPair.getPrivate().getEncoded() ) );
-		System.out.println( CaUtils.convertByteArrayToHexString( rootCert.getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( rootKeyPair.getPublic().getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( rootKeyPair.getPrivate().getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( rootCert.getEncoded() ) );
 		System.out.println( "inter pub, pri, cert" );
-		System.out.println( CaUtils.convertByteArrayToHexString( caKeyPair.getPublic().getEncoded() ) );
-		System.out.println( CaUtils.convertByteArrayToHexString( caKeyPair.getPrivate().getEncoded() ) );
-		System.out.println( CaUtils.convertByteArrayToHexString( caCert.getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( caKeyPair.getPublic().getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( caKeyPair.getPrivate().getEncoded() ) );
+		System.out.println( DatatypeConverter.printHexBinary( caCert.getEncoded() ) );
 		
 		FileOutputStream localFileOutputStream = null;
 		try {

@@ -1,26 +1,28 @@
 package net.glaso.ca.business.group.dao;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-
+import net.glaso.ca.business.common.domain.Criteria;
 import net.glaso.ca.business.group.vo.GroupSolutionVo;
 import net.glaso.ca.business.group.vo.GroupVo;
 import net.glaso.ca.business.group.vo.UserGroupVo;
 import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 
-import net.glaso.ca.business.common.domain.Criteria;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class GroupDao {
 
-	@Inject
-	private SqlSession session;
+	private final SqlSession session;
 
-	private static String namespace="net.glaso.mapper.group";
+	private final static String namespace="net.glaso.mapper.group";
+
+	@Autowired
+	public GroupDao( SqlSession session ) {
+		this.session = session;
+	}
 
 	public int registerGroup( GroupVo vo ) {
 		return session.insert( namespace + ".registerGroup", vo );

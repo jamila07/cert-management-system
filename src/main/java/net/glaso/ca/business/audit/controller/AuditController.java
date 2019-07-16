@@ -1,14 +1,10 @@
 package net.glaso.ca.business.audit.controller;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import net.glaso.ca.business.audit.service.CertAuditService;
+import net.glaso.ca.business.audit.service.WebAuditService;
+import net.glaso.ca.business.common.domain.PageMaker;
+import net.glaso.ca.business.common.mvc.controller.CommonController;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,19 +12,24 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import net.glaso.ca.business.audit.service.WebAuditService;
-import net.glaso.ca.business.common.domain.PageMaker;
-import net.glaso.ca.business.common.mvc.controller.CommonController;
+import javax.servlet.http.HttpServletRequest;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/audit")
 public class AuditController extends CommonController {
 
-	@Inject
-	private CertAuditService cAuditService;
+	private final CertAuditService cAuditService;
 
-	@Inject
-	private WebAuditService wAuditService;
+	private final WebAuditService wAuditService;
+
+	@Autowired
+	public AuditController( CertAuditService cAuditService, WebAuditService wAuditService ) {
+		this.cAuditService = cAuditService;
+		this.wAuditService = wAuditService;
+	}
 
 	@GetMapping("")
 	public ModelAndView page( HttpServletRequest request ) {
@@ -40,18 +41,18 @@ public class AuditController extends CommonController {
 	}
 
 	@GetMapping("web")
-	public ResponseEntity<?> showWebAuditList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showWebAuditList( HttpServletRequest request ) throws IllegalArgumentException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
 		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
 
 		PageMaker pageMaker = super.setPaging( page );
-		List<Map<String, Object>> list = wAuditService.showList( request, pageMaker.getCri() );
+		List<Map<String, Object>> list = wAuditService.showList( pageMaker.getCri() );
 		int listCnt = wAuditService.showListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 
 		wAuditService.insertAudit( request );
 
@@ -59,18 +60,18 @@ public class AuditController extends CommonController {
 	}
 
 	@GetMapping("cert")
-	public ResponseEntity<?> showCertAuditList( HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showCertAuditList( HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
 		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
 
 		PageMaker pageMaker = super.setPaging( page );
-		List<Map<String, Object>> list = cAuditService.showList( request, pageMaker.getCri() );
+		List<Map<String, Object>> list = cAuditService.showList( pageMaker.getCri() );
 		int listCnt = cAuditService.showListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 
 		wAuditService.insertAudit( request );
 

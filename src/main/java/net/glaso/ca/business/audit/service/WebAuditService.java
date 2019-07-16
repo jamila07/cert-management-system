@@ -28,13 +28,12 @@ public class WebAuditService {
 
 	private static final Logger logger = LoggerFactory.getLogger(WebAuditService.class);
 
-	public List<Map<String,Object>> showList( HttpServletRequest request, Criteria cri ) {
-		List<Map<String,Object>> voMapList = webAuditDao.selectWebAduitList( cri );
+	public List<Map<String,Object>> showList( Criteria cri ) {
+		List<Map<String,Object>> voMapList = webAuditDao.selectWebAuditList( cri );
 
 		for ( Map<String, Object> voMap : voMapList ) {
 			voMap.put( "date", CommonConstants.dateFormat.format( (Date)voMap.get( "date" ) ) );
-			if ( voMap.get( "param" ) == null ) voMap.put( "param", "없음" );
-
+			voMap.putIfAbsent( "param", "없음" );
 		}
 
 		return voMapList;
@@ -76,18 +75,17 @@ public class WebAuditService {
 				vo.setUserId( null );
 			}
 
-			JSONObject param = null;
+			JSONObject param;
 			if ( request.getAttribute( "body" ) != null ) {
 				param = (JSONObject) request.getAttribute( "body" );
 
 				vo.setParam( param.toString() );
 			}
 
-			try {
-				if ( vo.getParam().length() > 512 ) {
-					vo.setParam( vo.getParam().substring(0, 511 ) );
-				}
-			} catch ( NullPointerException e ) {}
+
+			if ( vo.getParam().length() > 512 ) {
+				vo.setParam( vo.getParam().substring(0, 511 ) );
+			}
 
 			String hashVal = new StringBuilder().append( vo.getClientIp() )
 					.append( vo.getUserId() )

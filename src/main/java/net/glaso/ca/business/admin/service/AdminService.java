@@ -27,6 +27,7 @@ import net.glaso.ca.business.group.vo.GroupVo;
 import net.glaso.ca.business.group.vo.UserGroupVo;
 import net.glaso.ca.business.user.vo.AppliedUserInfoVo;
 import net.glaso.ca.business.user.vo.UserVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,17 +52,21 @@ import sun.security.x509.KeyIdentifier;
 @Service
 public class AdminService {
 
-	@Resource
-	private UserDao userDao;
+	private final UserDao userDao;
 
-	@Resource
-	private GroupDao groupDao;
+	private final GroupDao groupDao;
 
-	@Resource
-	private CertDao certDao;
+	private final CertDao certDao;
+
+	@Autowired
+	public AdminService( UserDao userDao, GroupDao groupDao, CertDao certDao ) {
+		this.userDao = userDao;
+		this.groupDao = groupDao;
+		this.certDao = certDao;
+	}
 
 	@Transactional(rollbackFor={Exception.class})
-	public void registerUser( HttpServletRequest request, int seqId ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, InvalidKeyException, NumberFormatException, CertificateException, NoSuchProviderException, SignatureException {
+	public void registerUser( int seqId ) throws IOException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, InvalidKeyException, NumberFormatException, CertificateException, NoSuchProviderException, SignatureException {
 		AppliedUserInfoVo appliedUserVo = userDao.selectAppliedUserInfoOne( seqId );
 
 		if ( appliedUserVo.getGroupCreator() && appliedUserVo.getGroupId() ==0 ) {
@@ -185,7 +190,7 @@ public class AdminService {
 	}
 
 	@Transactional(rollbackFor={Exception.class})
-	public void registerGroup( HttpServletRequest request, int seqId ) throws InvalidKeyException, NumberFormatException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException, IOException {
+	public void registerGroup( int seqId ) throws InvalidKeyException, NumberFormatException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException, IOException {
 		UserGroupVo uGroupVo = new UserGroupVo();
 		GroupVo groupVo = new GroupVo();
 		GroupSolutionVo gSolutionVo = new GroupSolutionVo();
@@ -208,7 +213,7 @@ public class AdminService {
 	}
 
 	@Transactional(rollbackFor={Exception.class})
-	public void registerSolution( HttpServletRequest request, int seqId ) throws InvalidKeyException, NumberFormatException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException, IOException {
+	public void registerSolution( int seqId ) throws InvalidKeyException, NumberFormatException, IllegalAccessException, NoSuchAlgorithmException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException, IOException {
 		GroupSolutionVo gSolutionVo = new GroupSolutionVo();
 
 		gSolutionVo.setSeqId( seqId );
@@ -225,7 +230,7 @@ public class AdminService {
 		registerIntermediateCa( groupVo.getUserVo(), groupVo, groupVo.getUserVo().getDepartTeam(), groupVo.getGroupSolutionVo().get( 0 ).getSolutionName() );
 	}
 
-	public void refuseAppliedUser( HttpServletRequest request, int seqId ) {
+	public void refuseAppliedUser( int seqId ) {
 		AppliedUserInfoVo vo = new AppliedUserInfoVo();
 
 		vo.setSeqId( seqId );

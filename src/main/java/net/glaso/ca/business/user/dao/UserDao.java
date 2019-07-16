@@ -1,26 +1,28 @@
 package net.glaso.ca.business.user.dao;
 
+import net.glaso.ca.business.common.domain.Criteria;
+import net.glaso.ca.business.user.vo.AppliedUserInfoVo;
+import net.glaso.ca.business.user.vo.UserVo;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import net.glaso.ca.business.user.vo.AppliedUserInfoVo;
-import net.glaso.ca.business.user.vo.UserVo;
-import org.apache.ibatis.session.SqlSession;
-import org.springframework.stereotype.Repository;
-
-import net.glaso.ca.business.common.domain.Criteria;
-
 @Repository
 public class UserDao {
-	
-	@Inject
-	private SqlSession session;
-	
-	private static String namespace="net.glaso.mapper.user";
-	
+
+	private final static String namespace="net.glaso.mapper.user";
+
+	private final SqlSession session;
+
+	@Autowired
+	public UserDao( SqlSession session ) {
+		this.session = session;
+	}
+
 	public void insertUser( UserVo vo ) {
 		session.insert( namespace + ".insertUser", vo );
 	}

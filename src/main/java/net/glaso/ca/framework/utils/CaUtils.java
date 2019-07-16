@@ -66,85 +66,7 @@ public class CaUtils {
 		
 		return -1;
 	}
-	
-	public static byte[] convertBigIntegerToByteArray( BigInteger b ) {
-		byte[] array = b.toByteArray();
-		
-		if (array[0] == 0) {
-		    byte[] tmp = new byte[array.length - 1];
-		    System.arraycopy(array, 1, tmp, 0, tmp.length);
-		    array = tmp;
-		}
-		
-		return array;
-	}
-	
-	public static byte[] convertHexStringToByteArray( String hexString ) {
-		int len = hexString.length();
-		byte[] data = new byte[len / 2];
-		for (int i = 0; i < len; i += 2) {
-			data[i / 2] = (byte) ( (Character.digit( hexString.charAt(i), 16 ) << 4 )
-					+ Character.digit( hexString.charAt(i+1), 16 ) );
-		}
-		
-		return data;
-	}
-	
-	public static char[] convertBytearrayToCharArray( byte[] bytes ) {
-		char[] chars = new char[bytes.length/2];
-		
-		for ( int i=0; i< chars.length; i++ ) {
-			chars[i] = (char) ( ( ( bytes[i*2] & 0xff ) << 8 ) + ( bytes[i * 2 + 1] & 0xff ) );
-		}
-		
-		return chars;
 
-	}
-	
-	public static ArrayList<Byte> convertHexStringToArrayList(String s) {
-		ArrayList al = new ArrayList();
-		for (int i = 0; i < s.length() - 1; i += 2) {
-			al.add(Byte.valueOf((byte) ((Character.digit(s.charAt(i), 16) << 4) + Character.digit(s.charAt(i + 1), 16))));
-		}
-		return al;
-	}
-	
-	public static String convertByteArrayToHexString(byte[] bytes) {
-		StringBuilder sb = new StringBuilder();
-		for(byte b : bytes) {
-			sb.append(String.format("%02x", b&0xff));
-		}
-		return sb.toString();
-	}
-	
-	public static byte[] toByteArray(List<Byte> in) {
-		int n = in.size();
-		byte[] ret = new byte[n];
-		for (int i = 0; i < n; ++i) {
-			ret[i] = ((Byte) in.get(i)).byteValue();
-		}
-		return ret;
-	}
-	
-	public static ArrayList<Byte> convertByteArrayToArrayList(byte[] bytes) {
-		ArrayList al = new ArrayList();
-		for (int i = 0; i < bytes.length; ++i) {
-			al.add(Byte.valueOf(bytes[i]));
-		}
-		return al;
-	}
-	
-	public static String convertArrayListToHexString(ArrayList<Byte> al) {
-		StringBuffer buf = new StringBuffer();
-		String tmpStr = null;
-		for (Byte b : al) {
-			tmpStr = String.format("%02X", new Object[]{b});
-			buf.append(tmpStr);
-		}
-
-		return buf.toString();
-	}
-	
 	public static X509Certificate bytesToX509Cert( byte[] bytes ) throws CertificateException {
 		CertificateFactory certFactory = CertificateFactory.getInstance("X.509");
 		
@@ -173,13 +95,6 @@ public class CaUtils {
 		}
 		
 		return voMap;
-	}
-	
-	public static byte[] convertMultiPartFileToBody( byte[] bytes ) {
-		byte[] padding = { 0x30, (byte)0xef, (byte)0xbf};
-		
-		System.out.println( byteArrayIndexOf( padding, bytes ) );
-		return null;
 	}
 }
 

@@ -20,12 +20,12 @@ public class WebAuditDao {
 
 	private static String namespace="net.glaso.mapper.audit";
 
-	public List<Map<String, Object>> selectWebAduitList( Criteria cri ) {
+	public List<Map<String, Object>> selectWebAuditList( Criteria cri ) {
 		Map<String, Object> paramMap = new HashMap<>();
 
 		paramMap.put( "cri", cri );
 
-		return session.selectList( namespace + ".selectWebAduitList", paramMap );
+		return session.selectList( namespace + ".selectWebAuditList", paramMap );
 	}
 
 	public int selectWebAuditListCnt() {

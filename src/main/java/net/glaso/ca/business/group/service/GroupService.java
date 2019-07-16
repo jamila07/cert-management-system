@@ -1,18 +1,5 @@
 package net.glaso.ca.business.group.service;
 
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
-
-import org.json.JSONObject;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import net.glaso.ca.business.common.CommonConstants;
 import net.glaso.ca.business.common.domain.Criteria;
 import net.glaso.ca.business.group.dao.GroupDao;
@@ -20,23 +7,36 @@ import net.glaso.ca.business.group.vo.GroupSolutionVo;
 import net.glaso.ca.business.group.vo.GroupVo;
 import net.glaso.ca.business.group.vo.UserGroupVo;
 import net.glaso.ca.business.login.common.LoginConstants;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class GroupService {
 
-	@Resource
-	private GroupDao dao;
+
+	private final GroupDao dao;
+
+	@Autowired
+	public GroupService( GroupDao dao ) {
+		this.dao = dao;
+	}
 
 	@Transactional(rollbackFor={Exception.class})
-	public void registerGroup( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException {
+	public void registerGroup( HttpServletRequest request ) {
 		HttpSession session = request.getSession();
 		JSONObject body = (JSONObject) request.getAttribute( "body" );
 		GroupVo groupVo = GroupVo.deserialize( body );
-		Date currnetDate = new Date();
+		Date currentDate = new Date();
 
-		groupVo.setCreateDate( currnetDate );
+		groupVo.setCreateDate( currentDate );
 		groupVo.setState( 3 );
 		groupVo.setCreator( session.getAttribute( LoginConstants.SESSION_ID).toString() );
 
@@ -46,7 +46,7 @@ public class GroupService {
 
 		userGroupVo.setUserId( groupVo.getCreator() );
 		userGroupVo.setGroupId( groupVo.getId() );
-		userGroupVo.setJoinDate( currnetDate );
+		userGroupVo.setJoinDate( currentDate );
 		userGroupVo.setUserAuthority( 0 );
 		userGroupVo.setState( 0 );
 
@@ -57,14 +57,16 @@ public class GroupService {
 		groupSolutionVo.setGroupId( groupVo.getId() );
 		groupSolutionVo.setSolutionName( groupVo.getGroupSolutionName() );
 		groupSolutionVo.setState( 4 );
-		groupSolutionVo.setCreateDate( currnetDate );
+		groupSolutionVo.setCreateDate( currentDate );
 		groupSolutionVo.setCreator( LoginConstants.SESSION_ID );
 
 		dao.insertGroupSolution( groupSolutionVo );
 
+
+
 	}
 
-	public List<Map<String, Object>> showGroupList( HttpServletRequest request, Criteria cri ) {
+	public List<Map<String, Object>> showGroupList( Criteria cri ) {
 		List<Map<String,Object>> voMapList = dao.selectGroupList( cri );
 
 		for ( Map<String, Object> voMap : voMapList ) {
@@ -78,7 +80,7 @@ public class GroupService {
 		return dao.selectGroupListCnt();
 	}
 
-	public List<Map<String, Object>> showUserGroupApplyList( HttpServletRequest request, Criteria cri, int groupId ) {
+	public List<Map<String, Object>> showUserGroupApplyList( Criteria cri, int groupId ) {
 		List<Map<String,Object>> voMapList = dao.selectUserGroupApplyList( cri, groupId );
 
 		for ( Map<String, Object> voMap : voMapList ) {
@@ -110,14 +112,14 @@ public class GroupService {
 		dao.updateUserState( vo );
 	}
 
-	public List<UserGroupVo>showUserList( int groupId ) throws JsonParseException, JsonMappingException, IOException {
+	public List<UserGroupVo>showUserList( int groupId ) {
 		UserGroupVo vo = new UserGroupVo();
 		vo.setGroupId( groupId );
 
 		return dao.selectUserGroupList( vo );
 	}
 
-	public void addUserToGroup( HttpServletRequest request, int groupId ) throws JsonParseException, JsonMappingException, IOException {
+	public void addUserToGroup( HttpServletRequest request, int groupId ) {
 		UserGroupVo userGroupVo = new UserGroupVo();
 
 		userGroupVo.setGroupId( groupId );
@@ -129,7 +131,7 @@ public class GroupService {
 		dao.insertUserToGroup( userGroupVo );
 	}
 
-	public void removeUserToGroup( HttpServletRequest request, int groupId, String userId ) throws JsonParseException, JsonMappingException, IOException {
+	public void removeUserToGroup( int groupId, String userId ) {
 		UserGroupVo userGroupVo = new UserGroupVo();
 
 		userGroupVo.setGroupId( groupId );
@@ -138,7 +140,7 @@ public class GroupService {
 		dao.deleteUserToGroup( userGroupVo );
 	}
 
-	public void applyGroupSolution( HttpServletRequest request, int groupId ) throws JsonParseException, JsonMappingException, IOException {
+	public void applyGroupSolution( HttpServletRequest request, int groupId ) {
 		JSONObject body = (JSONObject)request.getAttribute( "body" );
 		GroupSolutionVo vo = new GroupSolutionVo();
 

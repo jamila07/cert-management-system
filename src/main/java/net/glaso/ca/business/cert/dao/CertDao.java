@@ -1,25 +1,27 @@
 package net.glaso.ca.business.cert.dao;
 
+import net.glaso.ca.business.cert.vo.CertVo;
+import net.glaso.ca.business.cert.vo.KeyVo;
+import org.apache.ibatis.session.SqlSession;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Repository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-
-import net.glaso.ca.business.cert.vo.CertVo;
-import org.apache.ibatis.session.SqlSession;
-import org.springframework.stereotype.Repository;
-
-import net.glaso.ca.business.cert.vo.KeyVo;
-
 @Repository
 public class CertDao {
 
-	@Inject
-	private SqlSession session;
+	private final SqlSession session;
 
-	private static String certNamespace="net.glaso.mapper.cert";
-	private static String keyNamespace="net.glaso.mapper.key";
+	private final static String certNamespace="net.glaso.mapper.cert";
+	private final static String keyNamespace="net.glaso.mapper.key";
+
+	@Autowired
+	public CertDao( SqlSession session ) {
+		this.session = session;
+	}
 
 	public CertVo selectCertOneUsingCertId(CertVo vo ) {
 		return session.selectOne( certNamespace + ".selectCertOneUsingCertId", vo );

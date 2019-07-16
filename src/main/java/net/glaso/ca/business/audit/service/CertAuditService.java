@@ -1,31 +1,33 @@
 package net.glaso.ca.business.audit.service;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
-import org.springframework.stereotype.Service;
-
 import net.glaso.ca.business.audit.dao.CertAuditDao;
 import net.glaso.ca.business.audit.vo.CertAuditVo;
 import net.glaso.ca.business.cert.vo.CertVo;
 import net.glaso.ca.business.common.CommonConstants;
 import net.glaso.ca.business.common.domain.Criteria;
 import net.glaso.ca.business.login.common.LoginConstants;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletRequest;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class CertAuditService {
 
-	@Resource
-	private CertAuditDao certAuditDao;
+	private final CertAuditDao certAuditDao;
 
-	public List<Map<String, Object>> showList( HttpServletRequest request, Criteria cri ) {
-		List<Map<String,Object>> voMapList = certAuditDao.selectCertAduitList( cri );
+	@Autowired
+	public CertAuditService( CertAuditDao certAuditDao ) {
+		this.certAuditDao = certAuditDao;
+	}
+
+	public List<Map<String, Object>> showList( Criteria cri ) {
+		List<Map<String,Object>> voMapList = certAuditDao.selectCertAuditList( cri );
 
 		for ( Map<String, Object> voMap : voMapList ) {
 			voMap.put( "date", CommonConstants.dateFormat.format( (Date)voMap.get( "date" ) ) );

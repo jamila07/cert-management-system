@@ -5,7 +5,7 @@
   
 <mapper namespace = "net.glaso.mapper.audit">
 	
-	<select id="selectCertAduitList" parameterType="map" resultType="map" >
+	<select id="selectCertAuditList" parameterType="map" resultType="map" >
 		select
 			id,
 			user_id userId,
@@ -24,7 +24,7 @@
 			cert_audit
 	</select>
 	
-	<select id="selectWebAduitList" parameterType="map" resultType="map" >
+	<select id="selectWebAuditList" parameterType="map" resultType="map" >
 		select
 			id,
 			user_id userId,

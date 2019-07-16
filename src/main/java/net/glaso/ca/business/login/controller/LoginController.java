@@ -1,19 +1,13 @@
 package net.glaso.ca.business.login.controller;
 
-import java.io.IOException;
-import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
-
+import net.glaso.ca.business.audit.service.WebAuditService;
+import net.glaso.ca.business.common.domain.PageMaker;
+import net.glaso.ca.business.common.mvc.controller.CommonController;
 import net.glaso.ca.business.group.service.GroupService;
+import net.glaso.ca.business.login.common.LoginConstants;
 import net.glaso.ca.business.login.service.LoginService;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,25 +15,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import net.glaso.ca.business.audit.service.WebAuditService;
-import net.glaso.ca.business.common.domain.PageMaker;
-import net.glaso.ca.business.common.mvc.controller.CommonController;
-import net.glaso.ca.business.login.common.LoginConstants;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @RestController
 public class LoginController extends CommonController {
 	
-	@Inject
-	private LoginService service;
-	
-	@Inject
-	private WebAuditService webAuditService;
-	
-	@Inject
-	private GroupService groupService;
-	
+	private final LoginService service;
+
+	private final WebAuditService webAuditService;
+
+	private final GroupService groupService;
+
+	@Autowired
+	public LoginController( LoginService service, WebAuditService webAuditService, GroupService groupService ) {
+		this.service = service;
+		this.webAuditService = webAuditService;
+		this.groupService = groupService;
+	}
+
 	@GetMapping("/")
 	public ModelAndView page( HttpServletRequest request ) {		
 		ModelAndView mv = new ModelAndView();
@@ -49,34 +48,34 @@ public class LoginController extends CommonController {
 		} else {
 			mv.setViewName( "/index" );
 		}
-		
+
 		return mv;
 	}
 	
 	@PostMapping("/login")
-	public ResponseEntity<?> login( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
+	public ResponseEntity<?> login( HttpServletRequest request ) throws IOException, NoSuchAlgorithmException {
 		
 		ResponseEntity<?> entity;
-		Map<String, Object> entities = new HashMap<String, Object>();
+		Map<String, Object> entities = new HashMap<>();
 		
 		if ( service.login( request ) == true ) {
 			entities.put( "redirect", "cert" );
-			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.CREATED);
+			entity = new ResponseEntity<>(entities, HttpStatus.CREATED);
 			
 			webAuditService.insertAudit( request );
 		} else {
  			entities.put( "redirect", "/" );
-			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.BAD_REQUEST);
+			entity = new ResponseEntity<>(entities, HttpStatus.BAD_REQUEST);
 		}
 		
 		return entity;
 	}
 	
 	@GetMapping("/logout")
-	public ResponseEntity<?> logout( HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
+	public ResponseEntity<?> logout( HttpServletRequest request ) {
 		
 		ResponseEntity<?> entity;
-		Map<String, Object> entities = new HashMap<String, Object>();
+		Map<String, Object> entities = new HashMap<>();
 		
 		HttpSession session =  request.getSession();
 		
@@ -85,27 +84,27 @@ public class LoginController extends CommonController {
 			session.invalidate();
 			
 			entities.put( "redirect", "/" );
-			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+			entity = new ResponseEntity<>(entities, HttpStatus.OK);
 		} else { 
 			entities.put( "redirect", "/" );
-			entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.BAD_REQUEST);
+			entity = new ResponseEntity<>(entities, HttpStatus.BAD_REQUEST);
 		}
 		
 		return entity;
 	}
 	
 	@PostMapping("/showGroupInfo.do")
-	public ResponseEntity<?> showGroupInfo( HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showGroupInfo( HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		JSONObject jObj = (JSONObject) request.getAttribute( "body" );
 		
 		PageMaker pageMaker = super.setPaging( jObj.getInt( "page" ), jObj.getInt( "perPageNum" ) );
-		List<Map<String, Object>> list = groupService.showGroupList( request, pageMaker.getCri() );
+		List<Map<String, Object>> list = groupService.showGroupList( pageMaker.getCri() );
 		int listCnt = groupService.showGroupListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 		
 		webAuditService.insertAudit( request );
 		

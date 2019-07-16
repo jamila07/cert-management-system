@@ -1,5 +1,16 @@
 package net.glaso.ca.business.admin.controller;
 
+import net.glaso.ca.business.admin.service.AdminService;
+import net.glaso.ca.business.audit.service.WebAuditService;
+import net.glaso.ca.business.common.domain.PageMaker;
+import net.glaso.ca.business.common.mvc.controller.CommonController;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
@@ -11,35 +22,19 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.glaso.ca.business.admin.service.AdminService;
-import net.glaso.ca.business.audit.service.WebAuditService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
-
-import net.glaso.ca.business.common.domain.PageMaker;
-import net.glaso.ca.business.common.mvc.controller.CommonController;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 @RestController
 @RequestMapping("/admin")
 public class AdminController extends CommonController {
-	
-	@Inject
-	private AdminService adminService;
-	
-	@Inject
-	private WebAuditService webAuditService;
+
+	private final AdminService adminService;
+
+	private final WebAuditService webAuditService;
+
+	@Autowired
+	public AdminController( AdminService adminService, WebAuditService webAuditService ) {
+		this.adminService = adminService;
+		this.webAuditService = webAuditService;
+	}
 
 	@GetMapping("")
 	public ModelAndView page( HttpServletRequest request ) {
@@ -51,13 +46,13 @@ public class AdminController extends CommonController {
 	}
 
 	@PostMapping("")
-	public ResponseEntity<?> registerRootCa( HttpServletRequest request, HttpServletResponse response ) throws InvalidKeyException, IllegalAccessException, NoSuchAlgorithmException, CertificateException, NoSuchProviderException, SignatureException, IOException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> registerRootCa( HttpServletRequest request ) throws InvalidKeyException, IllegalAccessException, NoSuchAlgorithmException, CertificateException, NoSuchProviderException, SignatureException, IOException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
 		adminService.registerRootCa( request );
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
+		entity = new ResponseEntity<>( entities, HttpStatus.CREATED );
 
 		webAuditService.insertAudit( request );
 
@@ -65,9 +60,9 @@ public class AdminController extends CommonController {
 	}
 
 	@GetMapping("applied-user")
-	public ResponseEntity<?> showAppliedUserList( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showAppliedUserList( HttpServletRequest request ) throws IllegalArgumentException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
 
 		PageMaker pageMaker = super.setPaging( page );
@@ -75,7 +70,7 @@ public class AdminController extends CommonController {
 		int listCnt = adminService.showAppliedUserListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 
 		webAuditService.insertAudit( request );
 
@@ -83,13 +78,13 @@ public class AdminController extends CommonController {
 	}
 
 	@PostMapping("applied-user/{appliedUserSeqId}")
-	public ResponseEntity<?> registerAppliedUser( @PathVariable("appliedUserSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> registerAppliedUser( @PathVariable("appliedUserSeqId") int seqId, HttpServletRequest request ) throws IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
-		adminService.registerUser( request, seqId );
+		adminService.registerUser( seqId );
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
+		entity = new ResponseEntity<>( entities, HttpStatus.CREATED );
 
 		webAuditService.insertAudit( request );
 
@@ -97,9 +92,9 @@ public class AdminController extends CommonController {
 	}
 
 	@GetMapping("applied-group")
-	public ResponseEntity<?> showAppliedGroupList( HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showAppliedGroupList( HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
 
 		PageMaker pageMaker = super.setPaging( page );
@@ -107,7 +102,7 @@ public class AdminController extends CommonController {
 		int listCnt = adminService.showGroupApplyListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 
 		webAuditService.insertAudit( request );
 
@@ -115,9 +110,9 @@ public class AdminController extends CommonController {
 	}
 
 	@GetMapping("applied-group/solution")
-	public ResponseEntity<?> showAppliedGroupSolutionList( HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showAppliedGroupSolutionList( HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		int page = request.getParameter( "page" ) != null ? Integer.parseInt( request.getParameter( "page" ) ) : 10;
 
 		PageMaker pageMaker = super.setPaging( page );
@@ -125,7 +120,7 @@ public class AdminController extends CommonController {
 		int listCnt = adminService.showGroupSolutionApplyListCnt();
 
 		entities = super.commonListing( entities, list, listCnt, pageMaker );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 
 		webAuditService.insertAudit( request );
 
@@ -133,13 +128,13 @@ public class AdminController extends CommonController {
 	}
 
 	@PostMapping("applied-group/{appliedGroupSeqId}")
-	public ResponseEntity<?> registerAppliedGroup( @PathVariable("appliedGroupSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> registerAppliedGroup( @PathVariable("appliedGroupSeqId") int seqId, HttpServletRequest request ) throws IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
-		adminService.registerGroup( request, seqId );
+		adminService.registerGroup( seqId );
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
+		entity = new ResponseEntity<>( entities, HttpStatus.CREATED );
 
 		webAuditService.insertAudit( request );
 
@@ -147,13 +142,13 @@ public class AdminController extends CommonController {
 	}
 
 	@PostMapping("applied-group/{groupId}/solution/{appliedSolutionSeqId}")
-	public ResponseEntity<?> registerAppliedSolution( @PathVariable("appliedSolutionSeqId") int seqId, HttpServletRequest request, HttpServletResponse response ) throws JsonParseException, JsonMappingException, IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> registerAppliedSolution( @PathVariable("appliedSolutionSeqId") int seqId, HttpServletRequest request ) throws IOException, InvalidKeyException, NumberFormatException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, CertificateException, NoSuchProviderException, SignatureException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 
-		adminService.registerSolution( request, seqId );
+		adminService.registerSolution( seqId );
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>( entities, HttpStatus.CREATED );
+		entity = new ResponseEntity<>( entities, HttpStatus.CREATED );
 
 		webAuditService.insertAudit( request );
 

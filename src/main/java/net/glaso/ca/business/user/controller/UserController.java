@@ -1,49 +1,43 @@
 package net.glaso.ca.business.user.controller;
 
-import java.io.IOException;
+import net.glaso.ca.business.audit.service.WebAuditService;
+import net.glaso.ca.business.user.service.UserService;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.Map;
 
-import javax.inject.Inject;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import net.glaso.ca.business.user.service.UserService;
-import org.json.JSONObject;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
-
-import net.glaso.ca.business.audit.service.WebAuditService;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
-
 @RestController
 @RequestMapping("/user")
 public class UserController {
-	
-	@Inject
-	private UserService service;
-	
-	@Inject
-	private WebAuditService wAuditService;
-	
+
+	private final UserService service;
+
+	private final WebAuditService wAuditService;
+
+	@Autowired
+	public UserController( UserService service, WebAuditService wAuditService ) {
+		this.service = service;
+		this.wAuditService = wAuditService;
+	}
+
 	// 2019.4.2 - ehdvudee
 	// return: ModelAndView or ResponseEntitiy
 	// 위의 것만 리턴하면 경고에 대해 안전하다.
 	@SuppressWarnings("unchecked")
 	@GetMapping("")
-	public <T>T listOrPage( HttpServletRequest request, HttpServletResponse response ) throws IllegalArgumentException, IllegalAccessException {
+	public <T>T listOrPage( HttpServletRequest request ) throws IllegalArgumentException {
 		if ( request.getParameterMap().isEmpty() ) {
 			return (T) page( request );
 		} else {
-			return (T) showUserList( request, response );
+			return (T) showUserList( request );
 		}
 	}
 	
@@ -56,37 +50,37 @@ public class UserController {
 		return mv;
 	}
 	
-	private ResponseEntity<?> showUserList( HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	private ResponseEntity<?> showUserList( HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		
 		entities.put( "data", service.showList( request ) );
 		entities.put( "status", "success" );
 		
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 		
 		wAuditService.insertAudit( request );
 		return entity;
 	}
 	
 	@PostMapping("")
-	public ResponseEntity<?> register( HttpServletRequest request, HttpServletResponse response) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {		
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> register( HttpServletRequest request ) throws NoSuchAlgorithmException {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		
 		service.registerAppliedUser( request );
 		wAuditService.insertAudit( request );
 		
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.CREATED);
+		entity = new ResponseEntity<>(entities, HttpStatus.CREATED);
 		
 		return entity;
 	}
 
 	@PostMapping(value="/{userId}")
-	public ResponseEntity<?> userIdPost( @PathVariable("userId") String userId, HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> userIdPost( @PathVariable("userId") String userId, HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		JSONObject body = (JSONObject)request.getAttribute( "body" );
 		
 		if ( !body.has( "oper" ) ) throw new IllegalArgumentException( "oper is null." );
@@ -99,19 +93,19 @@ public class UserController {
 		}
 		
 		entities.put( "status" , "success" );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 		
 		return entity;
 	}
 	
 	@GetMapping("{userId}/applied-groups")
-	public ResponseEntity<?> showJoinedGroup( @PathVariable("userId") String userId, HttpServletRequest request, HttpServletResponse response ) {
-		ResponseEntity<?> entity = null;
-		Map<String, Object> entities = new HashMap<String, Object>();
+	public ResponseEntity<?> showJoinedGroup( @PathVariable("userId") String userId, HttpServletRequest request ) {
+		ResponseEntity<?> entity;
+		Map<String, Object> entities = new HashMap<>();
 		
 		entities.put( "data", service.showJoinedGroup( request, userId ) );
 		entities.put( "status", "success" );
-		entity = new ResponseEntity<Map<String, Object>>(entities, HttpStatus.OK);
+		entity = new ResponseEntity<>(entities, HttpStatus.OK);
 		
 		wAuditService.insertAudit( request );
 		
