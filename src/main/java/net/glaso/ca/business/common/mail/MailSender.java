@@ -1,8 +1,9 @@
-package net.glaso.ca.framework.utils;
+package net.glaso.ca.business.common.mail;
 
-import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
+import net.glaso.ca.framework.init.MailSettings;
 
 import javax.mail.*;
+import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 import java.util.Properties;
@@ -17,6 +18,14 @@ public class MailSender {
 
     private static Session mailSession;
 
+    public MailSender() {
+        this.host = MailSettings.getInstance().get( "host" );
+        this.smtpHost = MailSettings.getInstance().get( "smtpHost" );
+        this.port = Integer.parseInt( MailSettings.getInstance().get( "port" ) );
+        this.userName = MailSettings.getInstance().get( "userName" );
+        this.password = MailSettings.getInstance().get( "password" );
+    }
+
     public MailSender(String host, String smtpHost, int port, String userName, String password ) {
         this.host = host;
         this.smtpHost = smtpHost;
@@ -25,7 +34,7 @@ public class MailSender {
         this.password = password;
     }
 
-    public void sendSimpleMail( String subject, String body, String recipient ) throws MessagingException, javax.mail.MessagingException {
+    public void sendSimpleMail( String subject, String body, String recipient ) throws MessagingException {
 
         setSession();
 

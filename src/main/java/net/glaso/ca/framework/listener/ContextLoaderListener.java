@@ -5,6 +5,7 @@ import java.io.IOException;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import net.glaso.ca.framework.init.MailSettings;
 import org.apache.log4j.Logger;
 
 import net.glaso.ca.framework.init.CaSettings;
@@ -18,8 +19,11 @@ public class ContextLoaderListener implements ServletContextListener {
 		logger.info( "run caSetting init...");
 		try {
 			CaSettings.init();
+
+			MailSettings.init();
+
 		} catch (IOException e) {
-			logger.error( "ca setting file not found.");
+			logger.error( "setting files not found.");
 			e.printStackTrace();
 		}
 	}

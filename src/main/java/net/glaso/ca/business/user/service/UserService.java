@@ -1,50 +1,64 @@
 package net.glaso.ca.business.user.service;
 
-import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
+import net.glaso.ca.business.common.CommonConstants;
+import net.glaso.ca.business.common.mail.MailSender;
+import net.glaso.ca.business.common.mail.MailService;
 import net.glaso.ca.business.group.dao.GroupDao;
 import net.glaso.ca.business.group.vo.GroupSolutionVo;
 import net.glaso.ca.business.group.vo.GroupVo;
+import net.glaso.ca.business.user.dao.UserDao;
 import net.glaso.ca.business.user.vo.AppliedUserInfoVo;
 import net.glaso.ca.business.user.vo.UserVo;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import net.glaso.ca.business.common.CommonConstants;
-import net.glaso.ca.business.user.dao.UserDao;
-import net.glaso.ca.framework.utils.CaUtils;
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.bind.DatatypeConverter;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.util.*;
 
 @Service
 public class UserService {
-	
-	@Resource
-	private UserDao userDao;
-	
-	@Resource
-	private GroupDao groupDao;
-		
-	public void registerAppliedUser( HttpServletRequest request ) throws JsonParseException, JsonMappingException, IOException, NoSuchAlgorithmException {
+
+	private final UserDao userDao;
+
+	private final GroupDao groupDao;
+
+	private final MailService mailService;
+
+	@Autowired
+	public UserService( UserDao userDao, GroupDao groupDao, MailService mailSevice ) {
+		this.userDao = userDao;
+		this.groupDao = groupDao;
+		this.mailService = mailSevice;
+	}
+
+	public void registerAppliedUser( HttpServletRequest request ) throws NoSuchAlgorithmException {
 		JSONObject body = (JSONObject) request.getAttribute( "body" );
 		AppliedUserInfoVo vo = AppliedUserInfoVo.deserialize( body );
 		MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
 		
 		vo.setAddDate( new Date() );
 		vo.setState( 0 );
-		vo.setPassword( CaUtils.convertByteArrayToHexString( messageDigest.digest( vo.getPassword().getBytes() ) ) );
+		vo.setPassword( DatatypeConverter.printHexBinary( messageDigest.digest( vo.getPassword().getBytes() ) ) );
 
 		userDao.insertAplliedUser( vo );
+		sendMail( vo );
+	}
+
+	private void sendMail( AppliedUserInfoVo vo ) {
+		String text = new StringBuffer( "회원 가입 신청 메일이 왔습니다. 수락해주시기 바랍니다 \n\n" )
+				.append( "ID : [ " )
+				.append( vo.getUserId() )
+				.append( " ] \n")
+				.append( "이름 : [ " )
+				.append( vo.getName() )
+				.append( " ] \n\n")
+				.append( "감사합니다.").toString();
+
+		mailService.sendMail( new MailSender(), "[certGenerator] 회원 가입 요청 ", text, "ehdvudee" );
 	}
 	
 	public UserVo selectOneUser(UserVo vo ) {
