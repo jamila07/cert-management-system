@@ -6,6 +6,7 @@ import net.glaso.ca.business.common.mvc.controller.CommonController;
 import net.glaso.ca.business.group.service.GroupService;
 import net.glaso.ca.business.group.vo.UserGroupVo;
 import net.glaso.ca.framework.utils.CaUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ public class GroupController extends CommonController {
 
 	private final WebAuditService webAuditService;
 
+	@Autowired
 	public GroupController( GroupService service, WebAuditService webAuditService ) {
 		this.service = service;
 		this.webAuditService = webAuditService;

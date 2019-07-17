@@ -18,6 +18,7 @@ import net.glaso.ca.framework.utils.PemUtil;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sun.security.x509.KeyIdentifier;
@@ -43,8 +44,12 @@ public class CertService {
 
 	private static final Logger logger = Logger.getLogger( CertService.class );
 
-	@Resource
-	private CertDao certDao;
+	private final CertDao certDao;
+
+	@Autowired
+	public CertService( CertDao certDao ) {
+		this.certDao = certDao;
+	}
 
 	public String downloadCert( HttpServletRequest request, int certId ) throws CertificateException, InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidKeySpecException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, InvalidParameterSpecException, JSONException, KeyStoreException, IOException {
 		JSONObject body = (JSONObject) request.getAttribute( "body" );
