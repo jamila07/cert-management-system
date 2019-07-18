@@ -32,7 +32,10 @@ public class CaSettings {
 		CaSettings.getInstance().put( "rootCertValidity", prop.getProperty( "root_ca_cert_validity" ) );
 		CaSettings.getInstance().put( "interCertValidity", prop.getProperty( "intermediate_ca_cert_validity" ) );
 		CaSettings.getInstance().put( "entityCertValidity", prop.getProperty( "end_entity_cert_validity" ) );
-		
+
+		CaSettings.getInstance().put( "checkUserAuthInfoTrigger", prop.getProperty( "check_user_auth_info_trigger" ) );
+		CaSettings.getInstance().put( "checkUserAuthInfoTime", prop.getProperty( "check_user_auth_info_time" ) );
+
 		System.out.println(" ----- LOAD DEFAULT SETTING ----- ");
 		for ( Map.Entry< String, String> entry : CaSettings.getInstance().entrySet() ) {
 			System.out.println( new StringBuffer().append( entry.getKey() )

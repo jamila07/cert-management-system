@@ -3,6 +3,12 @@
 	xmlns="http://java.sun.com/xml/ns/javaee"
 	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
 	version="2.5">
+	<!-- listener info start -->
+	<listener>
+		<listener-class>net.glaso.ca.framework.listener.ContextLoaderListener</listener-class>
+	</listener>
+	<!-- listener info end -->
+
 	<context-param>
 		<param-name>contextConfigLocation</param-name>
 		<param-value>
@@ -26,12 +32,6 @@
 		<servlet-name>appServlet</servlet-name>
 		<url-pattern>/</url-pattern>
 	</servlet-mapping>
-
-	<!-- listener info start -->
-	<listener>
-		<listener-class>net.glaso.ca.framework.listener.ContextLoaderListener</listener-class>
-	</listener>
-	<!-- listener info end -->
 
 	<!-- filter info start -->
 	<!-- encodingFilter : UTF-8 -->

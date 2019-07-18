@@ -266,4 +266,43 @@
 		where
 			aui.seq_id = #{val}
 	</select>
+
+	<select id="selectAppliedUserMailList" parameterType="int" resultMap="appliedUserInfoVoMap" >
+		select
+			aum.seq_id um_seq_id,
+			aum.expired_date,
+			aui.seq_id ui_seq_id
+		from
+			applied_user_mail aum
+		inner join applied_user_info aui on aui.seq_id = aum.applied_user_info_seq_id
+		where
+			aum.activated_state = #{val}
+	</select>
+
+	<update id="updateAppliedUserMailActStateMultiple" parameterType="map">
+		update
+			applied_user_mail
+		set
+			activated_state = #{activatedState}
+		where
+			seq_id in (
+			<foreach collection="updatedMailList" item="item" separator=",">
+				#{item.value}
+			</foreach>
+			)
+
+	</update>
+
+	<update id="updateAppliedUserInfoStateMultiple" parameterType="map">
+		update
+			applied_user_info
+		set
+			state = #{state}
+		where
+			seq_id in (
+			<foreach collection="updatedUserList" item="item" separator=",">
+				#{item.value}
+			</foreach>
+			)
+	</update>
 </mapper>

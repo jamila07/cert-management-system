@@ -15,11 +15,14 @@ import com.fasterxml.jackson.databind.JsonMappingException;
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {
 		"file:src/main/webapp/WEB-INF/spring/appServlet/servlet-context.xml",
-		"file:src/main/webapp/WEB-INF/spring/root-context.xml"})
+		"file:src/main/webapp/WEB-INF/spring/root-context.xml",
+		"file:src/main/webapp/WEB-INF/spring/sqlmap-context.xml",
+		"file:src/test/resources/sqlmap-context.xml"
+})
 public class UserTest {
 
-	@Autowired
-    UserService userService;
+//	@Autowired
+//    UserService userService;
 	
 	@Test
 	public void rejectAppliedUser() throws JsonParseException, JsonMappingException, IOException {

@@ -88,4 +88,16 @@ public class UserDao {
     public AppliedUserInfoVo selectAppliedUserUsingSeqId( int seqId ) {
 		return session.selectOne( namespace +".selectAppliedUserUsingSeqId", seqId );
 	}
+
+	public List<AppliedUserInfoVo> selectAppliedUserMailList( int state ) {
+		return session.selectList( namespace + ".selectAppliedUserMailList", state );
+	}
+
+	public void updateAppliedUserMailActStateMultiple( Map<String, Object> paramMap ) {
+		session.update( namespace + ".updateAppliedUserMailActStateMultiple", paramMap );
+	}
+
+	public void updateAppliedUserInfoStateMultiple( Map<String, Object> paramMap ) {
+		session.update( namespace + ".updateAppliedUserInfoStateMultiple", paramMap );
+	}
 }
