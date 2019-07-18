@@ -44,9 +44,22 @@ create table applied_user_info (
 	group_name character varying(40),
 	solution_name character varying(40),
 	group_description character varying(128),
-	state integer, -- 0:대기, 1:성공, 2:거절, 3: 
+	state integer, -- 0:대기, 1:성공, 2:거절, 3: 수락, 4: 만료
 	primary key(seq_id)
 );
+
+-- 사용자 메일 인증 관련
+create sequence applied_user_mail_id_seq start 1;
+create table applied_user_mail(
+	seq_id interger default nextval('applied_user_mail_id_seq'),
+	send_date timestamp without time zone,
+	expired_date timestamp without time zone,
+	auth_uri character varying(256) unique,
+	applied_user_info_seq_id integer
+	activated_state integer -- 0:activated 1: not activated 2: expired
+	state -- 0: 정상적인
+);
+
 
 -- 인증서 저장 테이블
 CREATE SEQUENCE cert_id_seq START 1;
@@ -99,10 +112,10 @@ create table web_audit(
 	id integer DEFAULT nextval('webaudit_id_seq'::regclass),
 	user_id character varying(24),
 	date timestamp without time zone,
-	url character varying(128),
-	param character varying(512),
+	url character varying(512),
+	param character varying(1024),
 	rep_code integer,
-	err_msg character varying(512),
+	err_msg character varying(1024),
 	client_ip character varying(48),
 	server_ip character varying(48),
 	hash bytea,
@@ -157,3 +170,5 @@ alter table user_group add constraint FK13F4AF379D2ADF4 foreign key (user_id) re
 alter table user_group add constraint FK13F4AF379D2ADF5 foreign key (group_id) references group_info(id);
 
 alter table group_info_solution add constraint FK13F4AF379D2ADF7 foreign key (group_id) references group_info(id);
+
+alter table applied_user_mail add constraint FK13F4AF379D2ADF8 foreign key (applied_user_info_seq_id) references  applied_user_info(seq_id);

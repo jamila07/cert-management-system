@@ -55,7 +55,11 @@ public class WebAuditService {
 		WebAuditVo vo = new WebAuditVo();
 
 		vo.setRepCode( repCode );
+
 		vo.setErrMsg( e.getMessage() );
+		if ( vo.getErrMsg().length() > 1024 ) {
+			vo.setErrMsg( vo.getErrMsg().substring(0, 1023 ) );
+		}
 
 		insertAudit( request, vo );
 	}
@@ -75,17 +79,19 @@ public class WebAuditService {
 				vo.setUserId( null );
 			}
 
-			JSONObject param;
-			if ( request.getAttribute( "body" ) != null ) {
-				param = (JSONObject) request.getAttribute( "body" );
+			JSONObject body = (JSONObject) request.getAttribute( "body" );
+			String queryString = request.getQueryString();
+			StringBuilder sb = new StringBuilder();
 
-				vo.setParam( param.toString() );
+			if ( body != null ) sb.append( "REQUEST BODY : [[ ").append( body.toString() ).append( " ]] ");
+			if ( queryString != null ) sb.append( "REQUEST QUERY STRING : [[ ").append( queryString ).append( " ]]" );
+
+			if ( sb.length() > 1024 ) {
+				sb = new StringBuilder( sb.substring( 0, 1000 ) ).append( " ]] - over the 1024" );
 			}
 
-
-			if ( vo.getParam().length() > 512 ) {
-				vo.setParam( vo.getParam().substring(0, 511 ) );
-			}
+			String param = sb.toString();
+			vo.setParam( param );
 
 			String hashVal = new StringBuilder().append( vo.getClientIp() )
 					.append( vo.getUserId() )
@@ -93,7 +99,7 @@ public class WebAuditService {
 					.append( vo.getUrl() ).toString();
 
 			vo.setHash( messageDigest.digest( hashVal.getBytes() ) );
-
+			System.out.println( vo.getErrMsg() );
 			webAuditDao.insertWebAudit( vo );
 		} catch ( NoSuchAlgorithmException ex ) {
 			logger.warn( "error while insert failWebAudit, errMsg: " + ex.getMessage() );

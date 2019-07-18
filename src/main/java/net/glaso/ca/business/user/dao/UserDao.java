@@ -2,6 +2,7 @@ package net.glaso.ca.business.user.dao;
 
 import net.glaso.ca.business.common.domain.Criteria;
 import net.glaso.ca.business.user.vo.AppliedUserInfoVo;
+import net.glaso.ca.business.user.vo.AppliedUserMailVo;
 import net.glaso.ca.business.user.vo.UserVo;
 import org.apache.ibatis.session.SqlSession;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,5 +71,21 @@ public class UserDao {
 	
 	public UserVo selectAppliedUserOne4ChkOverlap( UserVo vo ) {
 		return session.selectOne( namespace + ".selectAppliedUserOne4ChkOverlap", vo );
+	}
+
+	public void insertAppliedUserMail( AppliedUserMailVo vo ) {
+		session.insert( namespace +".insertAppliedUserMail", vo );
+	}
+
+	public AppliedUserInfoVo selectAppliedUserMailUsingAuthVal( String authVal ) {
+	    return session.selectOne( namespace + ".selectAppliedUserMailUsingAuthVal", authVal );
+    }
+
+    public void updateAppliedUserMailActState( AppliedUserMailVo vo ) {
+	    session.update( namespace +".updateAppliedUserMailActState", vo );
+    }
+
+    public AppliedUserInfoVo selectAppliedUserUsingSeqId( int seqId ) {
+		return session.selectOne( namespace +".selectAppliedUserUsingSeqId", seqId );
 	}
 }

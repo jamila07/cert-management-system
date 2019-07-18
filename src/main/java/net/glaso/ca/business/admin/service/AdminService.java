@@ -21,6 +21,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
 
+import net.glaso.ca.business.common.mail.MailSender;
+import net.glaso.ca.business.common.mail.MailService;
 import net.glaso.ca.business.group.dao.GroupDao;
 import net.glaso.ca.business.group.vo.GroupSolutionVo;
 import net.glaso.ca.business.group.vo.GroupVo;
@@ -58,17 +60,37 @@ public class AdminService {
 
 	private final CertDao certDao;
 
+	private final MailService mailService;
+
 	@Autowired
-	public AdminService( UserDao userDao, GroupDao groupDao, CertDao certDao ) {
+	public AdminService( UserDao userDao, GroupDao groupDao, CertDao certDao, MailService mailService ) {
 		this.userDao = userDao;
 		this.groupDao = groupDao;
 		this.certDao = certDao;
+		this.mailService = mailService;
+	}
+
+	public void registerUser( HttpServletRequest request, int seqId ) throws IllegalAccessException, SignatureException, NoSuchAlgorithmException, IOException, CertificateException, NoSuchProviderException, InvalidKeyException, InvalidKeySpecException {
+		AppliedUserInfoVo appliedUserVo = userDao.selectAppliedUserUsingSeqId( seqId );
+
+		if ( appliedUserVo == null ) {
+			throw new IllegalArgumentException( "applied User Seq Id is invalid." );
+		}
+
+		if ( appliedUserVo.getAppliedUserMailVo().getActivatedState() == 0 ) {
+			registerUser( appliedUserVo );
+
+			sendMailToUser( request, appliedUserVo );
+
+		} else {
+			appliedUserVo.setState( 3 );
+
+			userDao.updateAppliedUserState( appliedUserVo );
+		}
 	}
 
 	@Transactional(rollbackFor={Exception.class})
-	public void registerUser( int seqId ) throws IOException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, InvalidKeyException, NumberFormatException, CertificateException, NoSuchProviderException, SignatureException {
-		AppliedUserInfoVo appliedUserVo = userDao.selectAppliedUserInfoOne( seqId );
-
+	public void registerUser( AppliedUserInfoVo appliedUserVo ) throws IOException, NoSuchAlgorithmException, IllegalAccessException, InvalidKeySpecException, InvalidKeyException, NumberFormatException, CertificateException, NoSuchProviderException, SignatureException {
 		if ( appliedUserVo.getGroupCreator() && appliedUserVo.getGroupId() ==0 ) {
 			// 그룹장 트렌젝션
 			UserVo userVo = addUser( appliedUserVo );
@@ -368,5 +390,28 @@ public class AdminService {
 		certDao.insertKeyInfo( certVo.getKeyVo() );
 		certVo.setKeyId( certVo.getKeyVo().getId() );
 		certDao.insertCertInfo( certVo );
+	}
+
+	private void sendMailToUser( HttpServletRequest request, AppliedUserInfoVo vo ) {
+		String title = "[certGenerator] 회원가입 승인 되었습니다.";
+		String text = new StringBuilder( "안녕하세요. CertGenerator 입니다. <br><br>" )
+				.append( "관리자로부터 회원 가입 승인을 받으셨습니다.<br>" )
+				.append( "승인 정보는 아래와 같습니다.<br>")
+				.append( "이름: [[ ")
+				.append( vo.getName() )
+				.append( "]] " )
+				.append( "아이디: [[ " )
+				.append( vo.getUserId() )
+				.append( " ]]")
+				.append( "아래의 링크를 클릭하세요.<br>" )
+				.append( "<a href=\'http://" )
+				.append( request.getServerName() )
+				.append( ":" )
+				.append( request.getServerPort() )
+				.append( "\'> CertGenerator 이동 </a><br><br>")
+				.append( "감사합니다." ).toString();
+
+		mailService.sendMail( new MailSender(), title, text, vo.geteMail() );
+
 	}
 }

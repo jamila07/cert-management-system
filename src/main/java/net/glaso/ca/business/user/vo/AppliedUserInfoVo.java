@@ -21,9 +21,9 @@ public class AppliedUserInfoVo {
 	private String solutionName;
 	private String groupDescription;
 	private int state;
-	
-	private Map<String, Object> dynamicParam = new HashMap<String, Object>();
-	
+
+	private AppliedUserMailVo appliedUserMailVo;
+
 	public AppliedUserInfoVo() {}
 	
 	private AppliedUserInfoVo( String dt, String em, String jl, String n, String p, String ui, boolean gc, int gi, String gd, String sn, String gn ) {
@@ -70,15 +70,13 @@ public class AppliedUserInfoVo {
 		if ( body.has( variable ) ) return true;
 		else throw new IllegalArgumentException( variable + " is null.");
 	}
-	
-	public void setDynamicParam( String key, Object value ) {
-		dynamicParam.put( key, value );
+
+	public AppliedUserMailVo getAppliedUserMailVo() {
+		return appliedUserMailVo;
 	}
-	
-	public Map<String, Object> getDynamicParam() {
-		return dynamicParam;
+	public void setAppliedUserMailVo(AppliedUserMailVo appliedUserMailVo) {
+		this.appliedUserMailVo = appliedUserMailVo;
 	}
-	
 	public String getGroupName() {
 		return groupName;
 	}

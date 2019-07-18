@@ -5,11 +5,15 @@ alter table user_group drop constraint FK13F4AF379D2ADF4;
 alter table user_group drop constraint FK13F4AF379D2ADF5;
 alter table group_info drop constraint FK13F4AF379D2ADF6;
 alter table group_info_solution drop constraint FK13F4AF379D2ADF7;
+alter table applied_user_mail drop constraint FK13F4AF379D2ADF8;
 
 drop table user_info;
 
 drop table applied_user_info;
 drop sequence applied_user_info_id_seq;
+
+drop table applied_user_mail;
+drop sequence applied_user_mail_id_seq;
 
 drop table cert;
 drop sequence cert_id_seq;

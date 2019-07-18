@@ -100,7 +100,10 @@ function goAppliedUserList( page ) {
 						$("#userApplyTable").find('td').eq(j++).text( list.data[i].joblevel );
 						$("#userApplyTable").find('td').eq(j++).text( list.data[i].reqtype );
 						$("#userApplyTable").find('td').eq(j++).text( list.data[i].adddate );
-						j++;
+						$("#userApplyTable").find('td').eq(j++).html(
+								"<a href=javascript:; onclick=registerAppliedUser('" + list.data[i].seqid + "')>승인</a>&nbsp;"+
+								"<a href=javascript:; onclick=refuseAppliedUser('" + list.data[i].seqid + "')>거절</a>"
+						);
 					}
 				} else if ( i == navi2 && (i+1) == $("#userApplyTable tr").length ) {
 					break; 

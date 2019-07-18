@@ -4,6 +4,35 @@
   "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
   
 <mapper namespace = "net.glaso.mapper.user">
+
+	<resultMap type="appliedUserInfoVo" id="appliedUserInfoVoMap">
+		<id column="ui_seq_id" property="seqId"/>
+		<result column="user_id" property="userId"/>
+		<result column="password" property="password" />
+		<result column="add_date" property="addDate" />
+		<result column="name" property="name" />
+		<result column="depart_team" property="departTeam" />
+		<result column="job_level" property="jobLevel" />
+		<result column="e_mail" property="eMail" />
+		<result column="group_creator" property="groupCreator" />
+		<result column="group_id" property="groupId" />
+		<result column="group_name" property="groupName" />
+		<result column="solution_name" property="solutionName" />
+		<result column="group_description" property="groupDescription" />
+		<result column="state" property="state" />
+		<association property="appliedUserMailVo" resultMap="appliedUserMailVoMap"/>
+	</resultMap>
+
+	<resultMap type="appliedUserMailVo" id="appliedUserMailVoMap">
+		<id column="um_seq_id" property="seqId"/>
+		<result column="send_date" property="sendDate"/>
+		<result column="expired_date" property="expiredDate" />
+		<result column="auth_uri" property="authUri" />
+		<result column="applied_user_info_seq_id" property="appliedUserInfoSeqId" />
+		<result column="activated_state" property="activatedState" />
+		<result column="state" property="state" />
+	</resultMap>
+
 	<insert id="insertUser" parameterType="userVo">
 		insert into user_info (
 			id,
@@ -26,7 +55,7 @@
 		)
 	</insert>
 	
-	<insert id="insertAppliedUser" parameterType="appliedUserInfoVo">
+	<insert id="insertAppliedUser" parameterType="appliedUserInfoVo" useGeneratedKeys="true" keyColumn="seq_id" keyProperty="seqId">
 		insert into applied_user_info ( 
 			user_id,
 			password,
@@ -160,5 +189,81 @@
 		where
 			user_id = #{id}
 	</select>
-	
+
+
+	<insert id="insertAppliedUserMail" parameterType="appliedUserMailVo">
+		insert into applied_user_mail(
+			send_date,
+			expired_date,
+			auth_uri,
+			applied_user_info_seq_id,
+			activated_state,
+			state
+		) values (
+			#{sendDate},
+			#{expiredDate},
+			#{authUri},
+			#{appliedUserInfoSeqId},
+			#{activatedState},
+			#{state}
+		);
+	</insert>
+
+	<select id="selectAppliedUserMailUsingAuthVal" parameterType="String" resultMap="appliedUserInfoVoMap">
+		select
+			aui.seq_id ui_seq_id,
+			aui.user_id,
+			aui.password,
+			aui.add_date,
+			aui.name,
+			aui.depart_team,
+			aui.job_level,
+			aui.e_mail,
+			aui.group_creator,
+			aui.group_id,
+			aui.group_name,
+			aui.solution_name,
+			aui.group_description,
+			aui.state,
+			aum.seq_id um_seq_id
+		from
+			applied_user_mail aum
+		inner join applied_user_info aui on aum.applied_user_info_seq_id = aui.seq_id
+		where
+			auth_uri = #{val} and
+			activated_state = 1
+
+	</select>
+
+	<update id="updateAppliedUserMailActState" parameterType="appliedUserMailVo">
+		update
+			applied_user_mail
+		set
+			activated_state = #{activatedState}
+		where
+			seq_id = #{seqId}
+	</update>
+
+	<select id="selectAppliedUserUsingSeqId" parameterType="int" resultMap="appliedUserInfoVoMap">
+		select
+			aui.seq_id ui_seq_id,
+			aui.user_id,
+			aui.password,
+			aui.add_date,
+			aui.name,
+			aui.depart_team,
+			aui.job_level,
+			aui.e_mail,
+			aui.group_creator,
+			aui.group_id,
+			aui.group_name,
+			aui.solution_name,
+			aui.group_description,
+			aum.activated_state
+		from
+			applied_user_info aui
+		inner join applied_user_mail aum on aui.seq_id = aum.applied_user_info_seq_id
+		where
+			aui.seq_id = #{val}
+	</select>
 </mapper>

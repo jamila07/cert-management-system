@@ -1,6 +1,7 @@
 package net.glaso.ca.business.user.controller;
 
 import net.glaso.ca.business.audit.service.WebAuditService;
+import net.glaso.ca.business.common.mvc.controller.CommonController;
 import net.glaso.ca.business.user.service.UserService;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,13 +11,20 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.security.NoSuchProviderException;
+import java.security.SignatureException;
+import java.security.cert.CertificateException;
+import java.security.spec.InvalidKeySpecException;
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
-public class UserController {
+public class UserController extends CommonController {
 
 	private final UserService service;
 
@@ -110,5 +118,16 @@ public class UserController {
 		wAuditService.insertAudit( request );
 		
 		return entity;
+	}
+
+	@GetMapping("/mail/{authVal}")
+	public void authUser(@PathVariable("authVal") String authVal, HttpServletRequest request, HttpServletResponse response) throws IOException, IllegalAccessException, InvalidKeyException, NoSuchAlgorithmException, SignatureException, NoSuchProviderException, CertificateException, InvalidKeySpecException {
+		String retMessage;
+
+		if ( (retMessage = service.isUserAuthenticated( authVal ) ) != null ) {
+			super.sendRedirect( retMessage, "/", response );
+		} else {
+			super.sendRedirect( "인증 실패, 이런 접근 곤란해요.", "/", response );
+		}
 	}
 }

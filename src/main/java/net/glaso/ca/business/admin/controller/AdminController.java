@@ -82,7 +82,7 @@ public class AdminController extends CommonController {
 		ResponseEntity<?> entity;
 		Map<String, Object> entities = new HashMap<>();
 
-		adminService.registerUser( seqId );
+		adminService.registerUser( request, seqId );
 		entities.put( "status", "success" );
 		entity = new ResponseEntity<>( entities, HttpStatus.CREATED );
 

@@ -10,10 +10,10 @@ import java.util.concurrent.Executors;
 public class MailService {
     ExecutorService executorService = Executors.newFixedThreadPool(3);
 
-    public void sendMail( MailSender mailSender, String title, String body, String recirecipient ) {
+    public void sendMail( MailSender mailSender, String title, String body, String recipient ) {
         executorService.submit(() -> {
             try {
-                mailSender.sendSimpleMail( title, body, recirecipient );
+                mailSender.sendSimpleMail( title, body, recipient );
             } catch (MessagingException e) {
                 throw new RuntimeException( e );
             }

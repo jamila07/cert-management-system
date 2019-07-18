@@ -29,6 +29,7 @@ import java.math.BigInteger;
 import java.security.KeyFactory;
 import java.security.NoSuchAlgorithmException;
 import java.security.PrivateKey;
+import java.security.SecureRandom;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -93,8 +94,38 @@ public class CaUtils {
 				}
 			}
 		}
-		
+
 		return voMap;
+	}
+
+	// upper the jdk 1.7
+	public static byte[] generateSecureRandomString( int byteLength ) throws NoSuchAlgorithmException {
+		byte[] rng;
+
+		try{
+			rng = generateSecureRandomString( "NativePRNGNonBlocking", byteLength );
+		} catch ( NoSuchAlgorithmException e ) {
+			System.out.println( "this server is not linux, while check create token.");
+			rng = generateSecureRandomString( "Windows-PRNG", byteLength );
+		}
+
+		return rng;
+	}
+
+	private static byte[] generateSecureRandomString( String algo, int byteLength ) throws NoSuchAlgorithmException {
+		byte[] seed;
+		SecureRandom sRandom;
+		byte[] random = new byte[byteLength];
+
+		sRandom = SecureRandom.getInstance( algo );
+
+		seed = SecureRandom.getInstance( algo ).generateSeed( 55 );
+
+		sRandom.setSeed( seed );
+
+		sRandom.nextBytes( random );
+
+		return random;
 	}
 }
 

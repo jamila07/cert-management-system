@@ -3,9 +3,8 @@ package net.glaso.ca.business.common.mail;
 import net.glaso.ca.framework.init.MailSettings;
 
 import javax.mail.*;
-import javax.mail.internet.AddressException;
-import javax.mail.internet.InternetAddress;
-import javax.mail.internet.MimeMessage;
+import javax.mail.internet.*;
+import java.io.UnsupportedEncodingException;
 import java.util.Properties;
 
 public class MailSender {
@@ -34,7 +33,7 @@ public class MailSender {
         this.password = password;
     }
 
-    public void sendSimpleMail( String subject, String body, String recipient ) throws MessagingException {
+    public void sendSimpleMail( String subject, String text, String recipient ) throws MessagingException {
 
         setSession();
 
@@ -44,15 +43,11 @@ public class MailSender {
                 .append( "@" )
                 .append( host ).toString();
 
-        String to = new StringBuilder( recipient )
-                .append( "@" )
-                .append( host ).toString();
-
         mimeMessage.setFrom( new InternetAddress( from ) );
-        mimeMessage.setRecipient( Message.RecipientType.TO, new InternetAddress( to ) );
+        mimeMessage.setRecipient( Message.RecipientType.TO, new InternetAddress( recipient ) );
 
         mimeMessage.setSubject( subject );
-        mimeMessage.setText( body );
+        mimeMessage.setContent( text, "text/html; charset=utf-8");
 
         Transport.send( mimeMessage );
     }
