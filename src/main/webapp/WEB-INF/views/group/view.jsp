@@ -191,6 +191,7 @@ function approveAppliedUser( id ) {
 	$.ajax({
 		url: '/group/' + groupId + '/user/' + id,
 		type: 'POST',
+		contentType: "application/json",
 		success: function(list) {
 			reloadTable( $("#groupApplyTable tr").length, "groupApplyTable", "goGroupApplyList" );
 			alert( '등록 성공');
@@ -239,6 +240,7 @@ function removeUserToGroup() {
 		url: '/group/' + groupId + '/user/' + userId,
 		type: 'DELETE',
 		dataType: 'json',
+		contentType: "application/json",
 		success: function(list) {
 			alert("성공");
 			removePopData();

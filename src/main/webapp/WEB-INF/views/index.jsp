@@ -247,6 +247,7 @@ var navi = 5;
 			type: 'POST',
 			data: JSON.stringify(sendData),
 			dataType: 'json',
+			contentType: "application/json",
 			success: function(list) {
 				var i =0;
 				var j =0;

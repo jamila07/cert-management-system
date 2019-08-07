@@ -57,7 +57,7 @@ public class WebAuditService {
 		vo.setRepCode( repCode );
 
 		vo.setErrMsg( e.getMessage() );
-		if ( vo.getErrMsg().length() > 1024 ) {
+		if ( vo.getErrMsg() != null && vo.getErrMsg().length() > 1024 ) {
 			vo.setErrMsg( vo.getErrMsg().substring(0, 1023 ) );
 		}
 

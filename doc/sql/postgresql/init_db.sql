@@ -1,20 +1,16 @@
 
-create database minica;
+create database toy;
 
 create user camanager with encrypted password 'camanager';
-create schema minica2018;
+create schema minica;
 
-GRANT CONNECT ON DATABASE minica TO camanager;
-GRANT all ON SCHEMA minica2018 TO camanager;
-
-alter schema minica2018 owner to camanager;
+GRANT CONNECT ON DATABASE toy TO camanager;
+alter schema minica owner to camanager;
 
 select current_schema();
-set search_path to minica2018
+show search_path();
 
-alter database minica set search_path to minica2018 
-or
-alter role camanager set search_path to minica2018
+alter role camanager set search_path to minica
 
 -- 사용자 저장 테이블
 create table user_info (
@@ -51,13 +47,13 @@ create table applied_user_info (
 -- 사용자 메일 인증 관련
 create sequence applied_user_mail_id_seq start 1;
 create table applied_user_mail(
-	seq_id interger default nextval('applied_user_mail_id_seq'),
+	seq_id integer default nextval('applied_user_mail_id_seq'),
 	send_date timestamp without time zone,
 	expired_date timestamp without time zone,
 	auth_uri character varying(256) unique,
-	applied_user_info_seq_id integer
-	activated_state integer -- 0:activated 1: not activated 2: expired
-	state -- 0: 정상적인
+	applied_user_info_seq_id integer,
+	activated_state integer, -- 0:activated 1: not activated 2: expired
+	state integer-- 0: 정상적인
 );
 
 

@@ -227,6 +227,7 @@ function refuseAppliedUser( id ) {
 	$.ajax({
 		url: '/admin/applied-user/' + id,
 		type: 'DELETE',
+		contentType: "application/json",
 		success: function(list) {
 			reloadTable( $("#userApplyTable tr").length, "userApplyTable", "goAppliedUserList" );
 			alert( '거절 성공');
@@ -242,6 +243,7 @@ function registerAppliedGroup( id ) {
 	$.ajax({
 		url: '/admin/applied-group/' + id,
 		type: 'POST',
+		contentType: "application/json",
 		success: function(list) {
 			reloadTable( $("#groupApplyTable tr").length, "groupApplyTable", "goAppliedGroupList" );
 			alert( '등록 성공');
@@ -257,6 +259,7 @@ function registerAppliedSolution( solutionId, groupId ) {
 	$.ajax({
 		url: '/admin/applied-group/' + groupId + '/solution/' + solutionId,
 		type: 'POST',
+		contentType: "application/json",
 		success: function(list) {
 			reloadTable( $("#groupSolutionApplyTable tr").length, "groupSolutionApplyTable", "goAppliedGroupSolutionList" );
 			alert( '등록 성공');
@@ -272,6 +275,7 @@ function registerRootCa() {
 	$.ajax({
 		url: '/admin',
 		type: 'POST',
+		contentType: "application/json",
 		success: function( data ) {
 			alert( '등록 성공');
 		},

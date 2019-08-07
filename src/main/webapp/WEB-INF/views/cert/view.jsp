@@ -142,6 +142,7 @@ $(function(){
 					url:'/cert', 
 					data:JSON.stringify( sendData ),
 					type:'POST',
+					contentType: "application/json",
 					dataType:'json', 
 					success: function(data) {
 						alert(data.status);
@@ -384,6 +385,7 @@ function downloadCert() {
 		url: "/cert/" + certId,
 		type:'post',
 		dataType: "JSON",
+		contentType: "application/json",
 		data: JSON.stringify( data ),
 		success:function(data) {
 			b64ToFileSave("user." + fExt, data.fileB64);

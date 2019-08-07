@@ -224,7 +224,7 @@ public class CertService {
 			X509Certificate rootCert = (X509Certificate) CertificateFactory.getInstance( "X.509" ).generateCertificate( new ByteArrayInputStream( rootCertVo.getFile() ) );
 
 			String dn = eeCert.getIssuerDN().getName();
-			eeCertVo.setGroupSolutionName( dn.substring( dn.indexOf( "OU = ") + 5, dn.indexOf( "O = Dreamsecurity") - 1 ) );
+			eeCertVo.setGroupSolutionName( dn.substring( dn.indexOf( "OU = ") + 5, dn.indexOf( "O = " +  CaSettings.getInstance().get( "organization" )) - 1 ) );
 
 			CertVo interCertVo = certDao.selectIntermediateCertAndKeyInfoOne( eeCertVo );
 
