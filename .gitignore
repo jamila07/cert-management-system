@@ -30,7 +30,7 @@ hs_err_pid*
 .idea
 out
 gen
-.iml
+*.iml
 
 # JNDI
 context.xml
