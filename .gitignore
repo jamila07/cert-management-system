@@ -42,3 +42,4 @@ target
 *.svn
 
 src/test/resources/sqlmap-context.xml
+src/main/resources/conf/mail-settings.properties
